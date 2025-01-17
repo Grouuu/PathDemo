@@ -1,88 +1,86 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PathController : MonoBehaviour
-{
-    [SerializeField]
-    private LineRenderer _lineRenderer;
-	[SerializeField]
-	private PlayerMovements _playerMovement;
-	[SerializeField]
-	private int _stepTotal = 50;
-	[SerializeField]
-	private float _stepLength = 0.5f;
+[RequireComponent(typeof(LineRenderer))]
+public class PathController : MonoBehaviour {
 
-	public Vector3 StartPosition = Vector3.zero;
-	public Vector3 StartVelocity = Vector3.zero;
+	[SerializeField] private int _length = 10;
+	[SerializeField] private int _steps = 100;
 
-	public void UpdatePath(Vector3 basePosition, Vector3 thrustVelocity, float deltaTime) {
+	public static PathController Instance { get; private set; }
 
+	private LineRenderer _lineRenderer;
+	private float _minLength = 0.1f; // prevent safe break trigger
+
+	public void UpdatePath(
+		Vector3 position,
+		Vector3 velocity,
+		Vector3 forward,
+		Func<Vector3, float, Vector3> getGravity,
+		Func<Vector3, float, Vector3> getTranslation
+	) {
+		float deltaTime = Time.deltaTime;
+		float stepLength = (float) _length / _steps;
 		List<Vector3> points = new List<Vector3>();
-		points.Add(basePosition);
 
-		Vector3 position = basePosition;
+		points.Add(position);
 
-		for (int step = 1; step < _stepTotal; step++) {
-			position += thrustVelocity * deltaTime;
-			Vector3 gravityVelocity = GravitySingleton.Instance.GetGravityByPosition(position) * deltaTime;
+		float currentLength = 0f;
+		bool isEnd = false;
+		int safeBreakCount = 0;
+
+		while (currentLength < _length) {
+
+			Vector3 gravityVelocity = getGravity(position, deltaTime);
+			velocity += gravityVelocity;
+			Vector3 translation = getTranslation(velocity, deltaTime);
+
+			if (translation.magnitude == 0) {
+				translation = forward.normalized * _minLength;
+			}
+
+			float lengthAdded = translation.magnitude;
+			currentLength += lengthAdded;
+
+			// end of the path
+			if (currentLength > _length) {
+				isEnd = true;
+				lengthAdded = currentLength - _length;
+				translation = translation.normalized * lengthAdded;
+				currentLength = _length;
+			}
 
 			RaycastHit hit;
 
-			if (Physics.Raycast(position, gravityVelocity.normalized, out hit, gravityVelocity.magnitude) && hit.collider.GetComponent<ObstacleBody>()) {
+			if (Physics.Raycast(position, translation.normalized, out hit, translation.magnitude) && hit.collider.GetComponent<Obstacle>()) {
+				// crash
 				points.Add(hit.point);
-				break; // break the path
+				break;
 			}
 
-			position += gravityVelocity;
-			points.Add(position);
+			position += translation;
+
+			float threshold = points.Count * stepLength;
+
+			if (currentLength > threshold || isEnd) {
+				points.Add(position);
+			}
+
+			safeBreakCount++;
+			if (safeBreakCount > 10000) {
+				Debug.Log("Infinite path loop suspected");
+				break;
+			}
 		}
 
 		_lineRenderer.positionCount = points.Count;
 		_lineRenderer.SetPositions(points.ToArray());
-
-		//int nbStep = _stepTotal + 1; // +1 for initial position
-
-		//List<Vector3> points = new List<Vector3>();
-
-		//Vector3 position = player.Position;
-		//Vector3 velocity = player.Velocity;
-
-		////points.Add(position);
-
-		//for (int step = 1; step < nbStep * multiplierStep; step++) {
-		//	Vector3 oldPosition = position;
-
-		//	velocity = player.UpdateVelocity(velocity, position, obstacles, dt);
-		//	position += velocity * dt;
-
-		//	Vector3 direction = position - oldPosition;
-		//	RaycastHit hit;
-
-		//	// if hit a GravityBody
-		//	if (Physics.Raycast(position, direction.normalized, out hit, direction.magnitude)
-		//		&& hit.collider.GetComponent<GravityBody>()) {
-		//		points.Add(hit.point);
-		//		break; // break the path
-		//	}
-
-		//	if (step % multiplierStep == 1)
-		//		points.Add(position); // add a step each X simulations
-		//}
-
-		//line.positionCount = points.Count;
-		//line.SetPositions(points.ToArray());
 	}
 
-	private void Update() {
-		List<Vector3> points = new List<Vector3>();
-		Vector3 position = StartPosition;
-		Vector3 velocity = StartVelocity;
-
-		points.Add(position);
-
-		for (int step = 1; step < _stepTotal; step++) {
-
-		}
+	private void Awake() {
+		Instance = this;
+		_lineRenderer = GetComponent<LineRenderer>();
 	}
 
 }
