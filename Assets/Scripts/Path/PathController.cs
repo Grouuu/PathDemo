@@ -53,7 +53,7 @@ public class PathController : MonoBehaviour {
 
 			RaycastHit hit;
 
-			if (Physics.Raycast(position, translation.normalized, out hit, translation.magnitude) && hit.collider.GetComponent<Obstacle>()) {
+			if (Physics.Raycast(position, translation.normalized, out hit, translation.magnitude) && hit.collider.GetComponent<ObstacleBody>()) {
 				// crash
 				points.Add(hit.point);
 				break;
