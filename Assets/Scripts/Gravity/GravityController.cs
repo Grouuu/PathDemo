@@ -13,7 +13,7 @@ public class GravityController : MonoBehaviour {
 		float easeCoeff = 1 - Mathf.Pow(distanceToSurfaceNormalized, 3); // f(x) = x³
 		return easeCoeff * body.Mass * (Instance?._gravityPower ?? 0.5f);
 		//return (1 / Mathf.Max(distanceToSurface, Mathf.Epsilon)) * body.Mass; // f(x) = 1/x * M
-		//return 667.4f * body.mass / Mathf.Pow(distance, 2); // F = G(mM/r²) where m is negligeable
+		//return 667.4f * body.mass / Mathf.Pow(distance, 2); // F = G(mM/r²) where m is 1
 	}
 
 	public static float GetGravityMax(ObstacleBody body) {
@@ -25,10 +25,6 @@ public class GravityController : MonoBehaviour {
 		if (_ignoreGravity) {
 			return Vector3.zero;
 		}
-
-		// TODO
-		// . the gravity is good at mid distance, but close to a body it increases too much
-		// . make the gravity vector staying in xy plan
 
 		ObstacleBody[] bodies = ObstacleController.Instance.GetObstacles();
 

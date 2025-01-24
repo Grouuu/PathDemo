@@ -6,27 +6,43 @@ public class ObstacleController : MonoBehaviour {
 	public static ObstacleController Instance { get; private set; }
 
 	[SerializeField] ObstacleBody _bodyPrefab;
+	[SerializeField] Rigidbody _playerBody;
+	[SerializeField] int _renderChunkRange = 2;
+	[SerializeField] int _chunkSize = 5;
+	[SerializeField] float _minDistance = 5;
+	[SerializeField] float _maxDistance = 10;
+	[SerializeField] bool _ignoreCollision = false;
+
+	private Sampler _sampler;
 
 	public ObstacleBody[] GetObstacles() {
 		return Component.FindObjectsOfType<ObstacleBody>(false);
 	}
 
-	public void GenerateObstacleField() {
+	public void UpdateObstacleField() {
 
-		float offsetX = 5;
-		float minDistance = 5;
-		float areaWidth = 100;
-		float areaHeight = 50;
+		List<GridPoint> points = _sampler.GetNewPoints(_playerBody.position);
 
-		List<Vector2> points = Sampler.GeneratePoints(minDistance, new Vector2(areaWidth, areaHeight));
-		Vector2 offset = new Vector2(offsetX, -areaHeight / 2);
+		foreach (GridPoint point in points) {
+			if (point.isRender) {
+				ObstacleBody body = Instantiate(_bodyPrefab, point.position, Quaternion.identity, transform);
+				body.SetSizefactor(point.sizeFactor);
+				point.body = body;
 
-		foreach (Vector3 position in points) {
-			ObstacleBody body = Instantiate(_bodyPrefab, new Vector3(position.x + offset.x, position.y + offset.y, 0), Quaternion.identity, transform);
+				// DEBUG
+				body.point = point;
+
+				point.OnDestroy += DestroyObstacle;
+			}
 		}
 	}
 
 	public bool IsCrashPosition(Vector3 position) {
+
+		if (_ignoreCollision) {
+			return false;
+		}
+
 		ObstacleBody[] obstacles = GetObstacles();
 
 		if (obstacles == null || obstacles.Length == 0) {
@@ -34,9 +50,9 @@ public class ObstacleController : MonoBehaviour {
 		}
 
 		foreach (ObstacleBody body in obstacles) {
-			float distance = (body.transform.position - position).magnitude;
+			float sqrDistance = (body.transform.position - position).sqrMagnitude;
 
-			if (distance <= body.Radius) {
+			if (sqrDistance <= body.Radius * body.Radius) {
 				return true;
 			}
 		}
@@ -46,10 +62,30 @@ public class ObstacleController : MonoBehaviour {
 
 	private void Awake() {
 		Instance = this;
+		Init();
 	}
 
 	private void Start () {
-		GenerateObstacleField();
+		UpdateObstacleField();
+	}
+
+	private void Update () {
+		UpdateObstacleField();
+		_sampler.UpdateDebug();
+	}
+
+	private void Init() {
+		GridOptions options = new GridOptions(_renderChunkRange, _chunkSize, _minDistance, _maxDistance);
+		Grid grid = new Grid(options);
+		_sampler = new Sampler(grid, options);
+	}
+
+	private void DestroyObstacle (GridPoint point, ObstacleBody body) {
+		point.OnDestroy -= DestroyObstacle;
+
+		if (body != null) {
+			Destroy(body.gameObject);
+		}
 	}
 
 }

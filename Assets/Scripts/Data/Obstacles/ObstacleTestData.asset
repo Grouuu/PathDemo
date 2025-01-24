@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: ObstacleTestData
   m_EditorClassIdentifier: 
   Prefab: {fileID: 8871826295270180800, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}
-  Radius: 0.5
-  RadiusGravity: 10
+  Radius: 1
+  RadiusGravity: 5
   Mass: 5

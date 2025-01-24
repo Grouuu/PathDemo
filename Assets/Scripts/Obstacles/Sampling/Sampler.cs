@@ -1,39 +1,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Sampler {
+/**
+ * Inspired by https://github.com/SebLague/Poisson-Disc-Sampling/blob/master/Poisson%20Disc%20Sampling%20E01/PoissonDiscSampling.cs
+ */
+public class Sampler {
 
-	private static readonly float SQRT_2 = Mathf.Sqrt(2);
+	private GridOptions _options;
+	private Grid _grid;
 
-	public static List<Vector2> GeneratePoints (float radius, Vector2 sampleRegionSize, int numSamplesBeforeRejection = 30) {
+	public Sampler (Grid grid, GridOptions options) {
+		_options = options;
+		_grid = grid;
+	}
 
-		// TODO
-		// . make the radius dependant of the perlin noise
-		// . add the size dependant of the the perlin noise (the more radius, the more size)
+	public List<GridPoint> GetNewPoints (Vector2 position) {
+		List<GridPoint> points = new List<GridPoint>();
 
-		float cellSize = radius / SQRT_2;
-		int[,] grid = new int[Mathf.CeilToInt(sampleRegionSize.x / cellSize), Mathf.CeilToInt(sampleRegionSize.y / cellSize)];
-		List<Vector2> points = new List<Vector2>(); // List<[x, y, size]>
-		List<Vector2> spawnPoints = new List<Vector2>();
+		bool isDirty = _grid.UpdateChunks(position);
 
-		spawnPoints.Add(sampleRegionSize / 2);
+		if (!isDirty) {
+			return points;
+		}
+
+		List<GridPoint> borderPoints = _grid.GetPoints(true);
+		List<GridPoint> spawnPoints = new List<GridPoint>();
+
+		if (borderPoints.Count == 0) {
+			// added to the grid but not to the scene
+			// force empty space around the player at start
+			GridPoint seedPoint = new GridPoint(position, _options.maxDistance, 1, false);
+			_grid.AddPoint(seedPoint);
+			borderPoints.Add(seedPoint);
+		}
+
+		spawnPoints.AddRange(borderPoints);
 
 		int safeBreakCount = 0;
+		int numSamplesBeforeRejection = 30;
+
 		while (spawnPoints.Count > 0) {
+
 			int spawnIndex = Random.Range(0, spawnPoints.Count);
-			Vector2 spawnCenter = spawnPoints[spawnIndex];
+			GridPoint spawnCenter = spawnPoints[spawnIndex];
 			bool candidateAccepted = false;
 
 			for (int i = 0; i < numSamplesBeforeRejection; i++) {
-				float angle = Random.value * Mathf.PI * 2;
-				Vector2 direction = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
-				Vector2 candidate = spawnCenter + direction * Random.Range(radius, radius * 2);
 
-				if (IsValid(candidate, sampleRegionSize, cellSize, radius, points, grid)) {
+				GridPoint candidate = GetRandomNextCandidate(spawnCenter.position, spawnCenter.reservedDistance);
+
+				if (_grid.IsPointValid(candidate)) {
+					_grid.AddPoint(candidate);
 					points.Add(candidate);
 					spawnPoints.Add(candidate);
-					int[] gridPosition = GetGridPosition(candidate, cellSize);
-					grid[gridPosition[0], gridPosition[1]] = points.Count;
 					candidateAccepted = true;
 					break;
 				}
@@ -54,43 +73,37 @@ public static class Sampler {
 		return points;
 	}
 
-	private static bool IsValid (Vector2 candidate, Vector2 sampleRegionSize, float cellSize, float radius, List<Vector2> points, int[,] grid) {
-		bool isInOfBounds = candidate.x >= 0 && candidate.x <= sampleRegionSize.x && candidate.y >= 0 && candidate.y <= sampleRegionSize.y;
-
-		if (!isInOfBounds) {
-			return false;
+	// DEBUG
+	public void UpdateDebug() {
+		List<GridChunk> chunks = _grid.chunks;
+		
+		foreach (GridChunk chunk in chunks) {
+			Utils.DrawDebugRectangle(
+				new Rect(
+					chunk.centerPosition + new Vector2(-_options.chunkSize * _grid.cellSize / 2, -_options.chunkSize * _grid.cellSize / 2),
+					new Vector2(_options.chunkSize * _grid.cellSize, _options.chunkSize * _grid.cellSize)
+				),
+				chunk.state == GridChunkState.Border ? Color.red : (chunk.state == GridChunkState.OldBorder ? Color.cyan : Color.green),
+				0
+			);
 		}
-
-		int[] gridPosition = GetGridPosition(candidate, cellSize);
-		int cellX = gridPosition[0];
-		int cellY = gridPosition[1];
-
-		// loop on 5x5 cells centered on the candidate
-		int searchStartX = Mathf.Max(0, cellX - 2);
-		int searchEndX = Mathf.Min(cellX + 2, grid.GetLength(0) - 1);
-		int searchStartY = Mathf.Max(0, cellY - 2);
-		int searchEndY = Mathf.Min(cellY + 2, grid.GetLength(1) - 1);
-
-		for (int x = searchStartX; x <= searchEndX; x++) {
-			for (int y = searchStartY; y <= searchEndY; y++) {
-
-				int pointIndex = grid[x, y] - 1;
-
-				if (pointIndex != -1) {
-					// sqrMagnitude is faster than magnitude
-					float sqrDst = (candidate - points[pointIndex]).sqrMagnitude;
-					if (sqrDst < radius * radius) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
 	}
 
-	private static int[] GetGridPosition (Vector2 position, float cellSize) {
-		return new int[] { (int) (position.x / cellSize), (int) (position.y / cellSize) };
+	private GridPoint GetRandomNextCandidate (Vector2 center, float spawnMinDistance) {
+		int noiseScale = 10; // TODO config
+		float minLocalRadius = spawnMinDistance;
+		float maxLocalRadius = Mathf.Max(_options.maxDistance, spawnMinDistance);
+		float radius = Random.Range(minLocalRadius, maxLocalRadius);
+		float angle = Random.value * Mathf.PI * 2;
+		Vector2 direction = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
+		Vector2 position = center + direction * radius;
+		float factor = GetNoiseAt(center, noiseScale);
+
+		return new GridPoint(position, _options.minDistance * factor, factor);
+	}
+
+	private float GetNoiseAt (Vector2 position, float scale) {
+		return Mathf.PerlinNoise(position.x / scale, position.y / scale) + 1; // [1, 2]
 	}
 
 }

@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour {
 	private void Update () {
 		_thrustForce = Input.GetAxisRaw("Vertical") * _thrustPower;
 		_rotateForce = -Input.GetAxisRaw("Horizontal") * _rotatePower;
+		UpdatePath();
 	}
 
 	private void FixedUpdate () {
@@ -38,7 +39,6 @@ public class PlayerMovement : MonoBehaviour {
 		UpdateRotation(deltaTime);
 		UpdateGravitySnap(deltaTime);
 		UpdatePosition(deltaTime);
-		UpdatePath();
 
 		if (_debug) {
 			Debug.DrawLine(_playerBodyPosition, _playerBodyPosition + _playerBodyForward * 10, Color.blue); // forward

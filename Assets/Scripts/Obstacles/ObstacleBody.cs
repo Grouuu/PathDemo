@@ -12,8 +12,16 @@ public class ObstacleBody : MonoBehaviour {
 	public float Radius => _data.Radius;
 	public float RadiusGravity => _data.RadiusGravity;
 
+	// DEBUG
+	[SerializeField] public GridPoint point;
+
 	public void SetData(ObstacleData data) {
 		_data = data;
+	}
+
+	public void SetSizefactor(float sizeFactor) {
+		float scale = Radius * sizeFactor;
+		transform.localScale = new Vector3(scale, scale, scale);
 	}
 
 	//private void OnDrawGizmos () {
