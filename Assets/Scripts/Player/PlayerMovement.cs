@@ -101,9 +101,11 @@ public class PlayerMovement : MonoBehaviour {
 
 		Quaternion rotation = Quaternion.identity;
 
+		// force the player body to face the velocity when no input
+		// prevent the player to plank and use only thrust to avoid collisions
 		if (_thrustForce == 0 && _rotateForce == 0 && _velocity != Vector3.zero) {
-			Quaternion deltaRotation = Quaternion.FromToRotation(_playerBodyForward, _velocityDirection);
-			rotation = Quaternion.Lerp(Quaternion.identity, deltaRotation, _snapPower * deltaTime);
+			float deltaAngle = Vector3.SignedAngle(_playerBodyForward, _velocityDirection, _playerBodyUp);
+			rotation = Quaternion.AngleAxis(deltaAngle * deltaTime, _playerBodyUp);
 		}
 
 		return rotation;
