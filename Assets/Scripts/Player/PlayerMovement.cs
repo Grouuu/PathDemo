@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour {
 
 		if (ObstacleController.Instance.IsCrashPosition(_playerBodyPosition)) {
 			// crash
+			SceneController.Crashed();
 			return;
 		}
 
