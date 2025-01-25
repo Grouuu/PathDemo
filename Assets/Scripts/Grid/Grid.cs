@@ -7,7 +7,6 @@ public delegate void OnPointDestroy (GridPoint point, ObstacleBody body);
 
 public enum GridChunkState { None, New, NewBorder, Border, OldBorder, Inside }
 
-[Serializable] // DEUG
 public class GridChunk {
 
 	public GridChunkState state = GridChunkState.None;
@@ -26,27 +25,12 @@ public class GridChunk {
 		this._grid = new GridPoint[chunkSize * chunkSize];
 	}
 
-	//public bool InBounds (Vector2 position) {
-	//	return Utils.IsInBounds(position, GetBounds());
-	//}
-
-	//public Vector2 GetBounds () {
-	//	return new Vector2(_centerPosition.x - _chunkSize * _cellSize / 2, _centerPosition.y - _chunkSize * _cellSize);
-	//}
-
-	//public bool IsOutOfRender (Vector2 position, float range) {
-	//	return Array.Exists(_grid, (SamplerPoint data) => data.SqrDistanceTo(position) < range * range);
-	//}
-
 	public void AddPoint (GridPoint point) {
 		Vector2 topLeftPosition = _centerPosition + new Vector2(-_chunkSize * _cellSize / 2, -_chunkSize * _cellSize / 2);
 		Vector2 localPosition = point.position - topLeftPosition;
 		int localCoordX = Mathf.FloorToInt(localPosition.x / _cellSize);
 		int localCoordY = Mathf.FloorToInt(localPosition.y / _cellSize);
 		int gridIndex = Utils.GridCoordsToIndex(localCoordX, localCoordY, _chunkSize);
-
-		// DEBUG
-		point.chunk = this;
 
 		_grid[gridIndex] = point;
 	}
@@ -93,7 +77,6 @@ public class GridChunk {
 	}
 }
 
-[Serializable] // DEUG
 public class GridPoint { 
 
 	public event OnPointDestroy OnDestroy;
@@ -103,9 +86,6 @@ public class GridPoint {
 	public float reservedDistance;
 	public float sizeFactor;
 	public bool isRender;
-
-	// DEBUG
-	public GridChunk chunk;
 
 	public GridPoint (Vector2 position, float reservedDistance, float sizeFactor, bool isRender = true) {
 		this.position = position;

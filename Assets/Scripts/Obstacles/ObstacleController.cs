@@ -28,10 +28,6 @@ public class ObstacleController : MonoBehaviour {
 				ObstacleBody body = Instantiate(_bodyPrefab, point.position, Quaternion.identity, transform);
 				body.SetSizefactor(point.sizeFactor);
 				point.body = body;
-
-				// DEBUG
-				body.point = point;
-
 				point.OnDestroy += DestroyObstacle;
 			}
 		}
