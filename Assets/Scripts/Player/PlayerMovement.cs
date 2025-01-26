@@ -106,7 +106,7 @@ public class PlayerMovement : MonoBehaviour {
 		// prevent the player to plank and use only thrust to avoid collisions
 		if (_thrustForce == 0 && _rotateForce == 0 && _velocity != Vector3.zero) {
 			float deltaAngle = Vector3.SignedAngle(_playerBodyForward, _velocityDirection, _playerBodyUp);
-			rotation = Quaternion.AngleAxis(deltaAngle * deltaTime, _playerBodyUp);
+			rotation = Quaternion.AngleAxis(deltaAngle * _snapPower * deltaTime, _playerBodyUp);
 		}
 
 		return rotation;
