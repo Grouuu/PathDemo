@@ -2,23 +2,10 @@ using UnityEngine;
 
 public class GravityController : MonoBehaviour {
 
-	[SerializeField] private float _gravityPower = 0.5f;
-	[SerializeField] private bool _ignoreGravity = false;
-
 	public static GravityController Instance { get; private set; }
 
-	public static float GetGravityForceByDistance(float distance, ObstacleBody body) {
-		float distanceToSurface = distance - body.Radius;
-		float distanceToSurfaceNormalized = distanceToSurface / (body.RadiusGravity - body.Radius);
-		float easeCoeff = 1 - Mathf.Pow(distanceToSurfaceNormalized, 3); // f(x) = x³
-		return easeCoeff * body.Mass * (Instance?._gravityPower ?? 0.5f);
-		//return (1 / Mathf.Max(distanceToSurface, Mathf.Epsilon)) * body.Mass; // f(x) = 1/x * M
-		//return 667.4f * body.mass / Mathf.Pow(distance, 2); // F = G(mM/r²) where m is 1
-	}
-
-	public static float GetGravityMax(ObstacleBody body) {
-		return GetGravityForceByDistance(body.Radius, body);
-	}
+	[SerializeField] private float _gravityPower = 0.5f;
+	[SerializeField] private bool _ignoreGravity = false;
 
 	public Vector3 GetGravityByPosition(Vector3 position, float magnitudeMax = float.MaxValue) {
 
@@ -48,6 +35,13 @@ public class GravityController : MonoBehaviour {
 		gravity = Vector3.ClampMagnitude(gravity, magnitudeMax);
 
 		return gravity;
+	}
+
+	private static float GetGravityForceByDistance (float distance, ObstacleBody body) {
+		float distanceToSurface = distance - body.Radius;
+		float distanceToSurfaceNormalized = distanceToSurface / (body.RadiusGravity - body.Radius);
+		float easeCoeff = 1 - Mathf.Pow(distanceToSurfaceNormalized, 3); // f(x) = x³
+		return easeCoeff * body.Mass * (Instance?._gravityPower ?? 0.5f);
 	}
 
 	private void Awake() {

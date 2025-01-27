@@ -17,14 +17,12 @@ public class PathController : MonoBehaviour {
 		Vector3 position,
 		Vector3 velocity,
 		Vector3 forward,
-		Func<Vector3, float, Vector3> getGravity,
-		Func<Vector3, float, Vector3> getTranslation
+		Func<Vector3, Vector3> getGravity,
+		Func<Vector3, Vector3> getTranslation
 	) {
-		float deltaTime = Time.deltaTime;
+		float deltaTime = 0.02f;
 		float stepLength = (float) _length / _steps;
-		List<Vector3> points = new List<Vector3>();
-
-		points.Add(position);
+		List<Vector3> points = new List<Vector3>() { position };
 
 		float currentLength = 0f;
 		bool isEnd = false;
@@ -32,9 +30,9 @@ public class PathController : MonoBehaviour {
 
 		while (currentLength < _length) {
 
-			Vector3 gravityVelocity = getGravity(position, deltaTime);
+			Vector3 gravityVelocity = getGravity(position) * deltaTime;
 			velocity += gravityVelocity;
-			Vector3 translation = getTranslation(velocity, deltaTime);
+			Vector3 translation = getTranslation(velocity) * deltaTime;
 
 			if (translation.magnitude == 0) {
 				translation = forward.normalized * _minLength;

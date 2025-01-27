@@ -800,9 +800,10 @@ MonoBehaviour:
   _playerBody: {fileID: 403915405}
   _renderChunkRange: 2
   _chunkSize: 5
-  _minDistance: 3
-  _maxDistance: 15
-  _ignoreCollision: 0
+  _minDistance: 5
+  _spawnRadius: 10
+  _ignoreCollision: 1
+  _debug: 1
 --- !u!1 &741485697
 GameObject:
   m_ObjectHideFlags: 0
@@ -1632,9 +1633,7 @@ MonoBehaviour:
   _playerBody: {fileID: 403915405}
   _speedMax: 10
   _thrustPower: 5
-  _rotatePower: 300
-  _isSnap: 1
-  _snapPower: 2
+  _rotatePower: 50
   _debug: 1
 --- !u!1001 &1998817770
 PrefabInstance:

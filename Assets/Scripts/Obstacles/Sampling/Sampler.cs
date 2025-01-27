@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +9,12 @@ public class Sampler {
 
 	private GridOptions _options;
 	private Grid _grid;
+	private Func<Vector2, float> _getNoiseAt;
 
-	public Sampler (Grid grid, GridOptions options) {
+	public Sampler (Grid grid, GridOptions options, Func<Vector2, float> getNoiseAt) {
 		_options = options;
 		_grid = grid;
+		_getNoiseAt = getNoiseAt;
 	}
 
 	public List<GridPoint> GetNewPoints (Vector2 position) {
@@ -29,7 +32,7 @@ public class Sampler {
 		if (borderPoints.Count == 0) {
 			// added to the grid but not to the scene
 			// force empty space around the player at start
-			GridPoint seedPoint = new GridPoint(position, _options.maxDistance, 1, false);
+			GridPoint seedPoint = new GridPoint(position, _options.spawnRadius, 1, false);
 			_grid.AddPoint(seedPoint);
 			borderPoints.Add(seedPoint);
 		}
@@ -41,7 +44,7 @@ public class Sampler {
 
 		while (spawnPoints.Count > 0) {
 
-			int spawnIndex = Random.Range(0, spawnPoints.Count);
+			int spawnIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
 			GridPoint spawnCenter = spawnPoints[spawnIndex];
 			bool candidateAccepted = false;
 
@@ -90,20 +93,16 @@ public class Sampler {
 	}
 
 	private GridPoint GetRandomNextCandidate (Vector2 center, float spawnMinDistance) {
-		int noiseScale = 10; // TODO config
 		float minLocalRadius = spawnMinDistance;
-		float maxLocalRadius = Mathf.Max(_options.maxDistance, spawnMinDistance);
-		float radius = Random.Range(minLocalRadius, maxLocalRadius);
-		float angle = Random.value * Mathf.PI * 2;
+		float maxLocalRadius = Mathf.Max(_options.spawnRadius, spawnMinDistance);
+		float radius = UnityEngine.Random.Range(minLocalRadius, maxLocalRadius);
+		float angle = UnityEngine.Random.value * Mathf.PI * 2;
 		Vector2 direction = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
 		Vector2 position = center + direction * radius;
-		float factor = GetNoiseAt(center, noiseScale);
+		float factor = _getNoiseAt(center);
+		float reservedDistance = _options.minDistance * factor;
 
-		return new GridPoint(position, _options.minDistance * factor, factor);
-	}
-
-	private float GetNoiseAt (Vector2 position, float scale) {
-		return Mathf.PerlinNoise(position.x / scale, position.y / scale) + 1; // [1, 2]
+		return new GridPoint(position, reservedDistance, factor);
 	}
 
 }
