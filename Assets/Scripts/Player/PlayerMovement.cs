@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour {
 	[SerializeField] private float _rotatePower = 500f;
 	[SerializeField] private bool _isSnap = true;
 	[SerializeField] private float _snapPower = 2f;
+	[SerializeField] private bool _isRotateVelocity = false;
 	[SerializeField] private bool _debug = false;
 
 	private Vector3 _velocity = Vector3.zero;
@@ -55,6 +56,10 @@ public class PlayerMovement : MonoBehaviour {
 	private void UpdateRotation (float deltaTime) {
 		Quaternion rotation = Quaternion.AngleAxis(_rotateForce * deltaTime, _playerBodyUp);
 		_playerBody.rotation *= rotation;
+
+		if (_isRotateVelocity) {
+			_velocity = rotation * _velocity;
+		}
 	}
 
 	private void UpdateGravitySnap (float deltaTime) {
