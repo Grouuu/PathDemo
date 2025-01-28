@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Require:
+ * . ObstacleBody
+ */
 [RequireComponent(typeof(LineRenderer))]
 public class PathController : MonoBehaviour {
 

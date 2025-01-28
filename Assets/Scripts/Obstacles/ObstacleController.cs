@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Require:
+ * . Grid
+ */
 public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
@@ -22,7 +26,7 @@ public class ObstacleController : MonoBehaviour {
 
 	public void UpdateObstacleField() {
 
-		List<GridPoint> points = _sampler.GetNewPoints(_playerBody.position); // TODO avoid playerBody reference
+		List<GridPoint> points = _sampler.GetNewPoints(_playerBody.position); // TODO avoid playerBody reference (allows any position)
 
 		foreach (GridPoint point in points) {
 			if (point.isRender) {

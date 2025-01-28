@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/**
+ * Require:
+ * . ObstacleController
+ */
 public class GravityController : MonoBehaviour {
 
 	public static GravityController Instance { get; private set; }

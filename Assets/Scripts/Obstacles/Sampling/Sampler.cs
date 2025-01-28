@@ -4,6 +4,8 @@ using UnityEngine;
 
 /**
  * Inspired by https://github.com/SebLague/Poisson-Disc-Sampling/blob/master/Poisson%20Disc%20Sampling%20E01/PoissonDiscSampling.cs
+ * Require:
+ * . Grid
  */
 public class Sampler {
 
