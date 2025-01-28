@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +32,13 @@ public class ObstacleController : MonoBehaviour {
 
 		foreach (GridPoint point in points) {
 			if (point.isRender) {
-				ObstacleBody body = Instantiate(_bodyPrefab, point.position, Quaternion.identity, transform);
+				GameObject instance = PoolManager.Instance.GetInstance(PoolId.Obstacle);
+				instance.SetActive(true);
+
+				ObstacleBody body = instance.GetComponent<ObstacleBody>();
+				body.transform.parent = transform;
+				body.transform.position = point.position;
+				body.transform.rotation = Quaternion.identity;
 				body.SetSizefactor(point.sizeFactor);
 				point.body = body;
 				point.OnDestroy += DestroyObstacle;
@@ -92,7 +100,7 @@ public class ObstacleController : MonoBehaviour {
 		point.OnDestroy -= DestroyObstacle;
 
 		if (body != null) {
-			Destroy(body.gameObject);
+			PoolManager.Instance.FreeInstance(PoolId.Obstacle, body.gameObject);
 		}
 	}
 
