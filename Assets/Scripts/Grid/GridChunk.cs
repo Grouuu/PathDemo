@@ -43,16 +43,21 @@ public class GridChunk {
 
 	public bool isFreePosition (Vector2 position, float minDistance) {
 
+		int index;
+		GridPoint point;
+		float reservedDistance;
+		float sqrDistance;
+
 		for (int x = 0; x < _chunkSize; x++) {
 			for (int y = 0; y < _chunkSize; y++) {
 
-				int index = Utils.GridCoordsToIndex(x, y, _chunkSize);
-				GridPoint point = _grid[index];
+				index = Utils.GridCoordsToIndex(x, y, _chunkSize);
+				point = _grid[index];
 
 				if (point != null) {
 
-					float reservedDistance = Mathf.Max(minDistance, point.reservedDistance);
-					float sqrDistance = (position - point.position).sqrMagnitude;
+					reservedDistance = Mathf.Max(minDistance, point.reservedDistance);
+					sqrDistance = (position - point.position).sqrMagnitude;
 
 					if (sqrDistance < reservedDistance * reservedDistance) {
 						return false;

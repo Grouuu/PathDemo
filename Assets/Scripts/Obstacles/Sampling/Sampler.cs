@@ -43,16 +43,20 @@ public class Sampler {
 
 		int safeBreakCount = 0;
 		int numSamplesBeforeRejection = 30;
+		GridPoint candidate;
+		GridPoint spawnCenter;
+		int spawnIndex;
+		bool candidateAccepted;
 
 		while (spawnPoints.Count > 0) {
 
-			int spawnIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
-			GridPoint spawnCenter = spawnPoints[spawnIndex];
-			bool candidateAccepted = false;
+			spawnIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
+			spawnCenter = spawnPoints[spawnIndex];
+			candidateAccepted = false;
 
 			for (int i = 0; i < numSamplesBeforeRejection; i++) {
 
-				GridPoint candidate = GetRandomNextCandidate(spawnCenter.position, spawnCenter.reservedDistance);
+				candidate = GetRandomNextCandidate(spawnCenter.position, spawnCenter.reservedDistance);
 
 				if (_grid.IsPointValid(candidate)) {
 					_grid.AddPoint(candidate);
@@ -80,15 +84,15 @@ public class Sampler {
 
 	// DEBUG
 	public void UpdateDebug() {
-		List<GridChunk> chunks = _grid.chunks;
+		Dictionary<string, GridChunk> chunks = _grid.chunks;
 		
-		foreach (GridChunk chunk in chunks) {
+		foreach (KeyValuePair<string, GridChunk> entry in chunks) {
 			Utils.DrawDebugRectangle(
 				new Rect(
-					chunk.centerPosition + new Vector2(-_options.chunkSize * _grid.cellSize / 2, -_options.chunkSize * _grid.cellSize / 2),
+					entry.Value.centerPosition + new Vector2(-_options.chunkSize * _grid.cellSize / 2, -_options.chunkSize * _grid.cellSize / 2),
 					new Vector2(_options.chunkSize * _grid.cellSize, _options.chunkSize * _grid.cellSize)
 				),
-				chunk.state == GridChunkState.Border ? Color.red : (chunk.state == GridChunkState.OldBorder ? Color.cyan : Color.green),
+				entry.Value.state == GridChunkState.Border ? Color.red : (entry.Value.state == GridChunkState.OldBorder ? Color.cyan : Color.green),
 				0
 			);
 		}

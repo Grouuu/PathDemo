@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Grid {
 
-	public List<GridChunk> chunks { get; private set; }
+	public Dictionary<string, GridChunk> chunks { get; private set; }
 	public float cellSize => _cellSize;
 
 	private GridOptions _options;
@@ -14,7 +14,7 @@ public class Grid {
 		_options = options;
 
 		_cellSize = _options.minDistance / Utils.SQRT_2;
-		chunks = new List<GridChunk>();
+		chunks = new Dictionary<string, GridChunk>();
 	}
 
 	public bool UpdateChunks (Vector2 position) {
@@ -53,12 +53,12 @@ public class Grid {
 	public List<GridPoint> GetPoints (bool onlyOldBorderChunks) {
 		List<GridPoint> points = new List<GridPoint>();
 
-		foreach (GridChunk chunk in chunks) {
+		foreach (KeyValuePair<string, GridChunk> entry in chunks) {
 			if (
-				(onlyOldBorderChunks && chunk.state == GridChunkState.OldBorder)
+				(onlyOldBorderChunks && entry.Value.state == GridChunkState.OldBorder)
 				|| !onlyOldBorderChunks
 			) {
-				points.AddRange(chunk.GetPoints());
+				points.AddRange(entry.Value.GetPoints());
 			}
 		}
 
@@ -79,11 +79,12 @@ public class Grid {
 		}
 
 		int range = _options.chunkSize;
+		GridChunk chunk;
 
 		for (int x = centerChunk.coords.x - range; x <= centerChunk.coords.x + range; x++) {
 			for (int y = centerChunk.coords.y - range; y <= centerChunk.coords.y + range; y++) {
 
-				GridChunk chunk = GetChunk(x, y);
+				chunk = GetChunk(x, y);
 
 				if (chunk == null) {
 					continue;
@@ -129,8 +130,13 @@ public class Grid {
 	}
 
 	private GridChunk GetChunk (Vector2Int coords) {
-		GridChunk test = chunks.Find((GridChunk chunk) => chunk.coords == coords);
-		return chunks.Find((GridChunk chunk) => chunk.coords == coords);
+		string chunkId = GetChunkId(coords);
+
+		if (!chunks.ContainsKey(chunkId)) {
+			return null;
+		}
+
+		return chunks[chunkId];
 	}
 
 	private GridChunk AddChunk (Vector2 position) {
@@ -146,22 +152,17 @@ public class Grid {
 			return GetChunk(coords);
 		}
 		GridChunk chunk = new GridChunk(coords, _options.chunkSize, _cellSize);
-		chunks.Add(chunk);
+		chunks.Add(GetChunkId(coords), chunk);
 		return chunk;
 	}
 
 	private void DestroyChunk(GridChunk chunk) {
 		chunk.Destroy();
-		chunks.Remove(chunk);
+		chunks.Remove(GetChunkId(chunk.coords));
 	}
 
 	private bool HasChunk (Vector2Int coords) {
-		foreach (GridChunk chunk in chunks) {
-			if (chunk.coords == coords) {
-				return true;
-			}
-		}
-		return false;
+		return chunks.ContainsKey(GetChunkId(coords));
 	}
 
 	private void ClearOutOfRenderChunks (Vector2 position) {
@@ -171,26 +172,30 @@ public class Grid {
 			return;
 		}
 
-		for (int i = chunks.Count - 1; i >= 0; i--) {
-			GridChunk chunk = chunks[i];
+		List<GridChunk> removedChunks = new List<GridChunk>();
 
-			if (chunk == null) {
-				continue;
-			}
-
-			bool leftOut = chunk.coords.x < centerChunk.coords.x - _options.renderChunkRange;
-			bool rightOut = chunk.coords.x > centerChunk.coords.x + _options.renderChunkRange;
-			bool topOut = chunk.coords.y > centerChunk.coords.y + _options.renderChunkRange;
-			bool bottomOut = chunk.coords.y < centerChunk.coords.y - _options.renderChunkRange;
+		foreach (KeyValuePair<string, GridChunk> entry in chunks) {
+			bool leftOut = entry.Value.coords.x < centerChunk.coords.x - _options.renderChunkRange;
+			bool rightOut = entry.Value.coords.x > centerChunk.coords.x + _options.renderChunkRange;
+			bool topOut = entry.Value.coords.y > centerChunk.coords.y + _options.renderChunkRange;
+			bool bottomOut = entry.Value.coords.y < centerChunk.coords.y - _options.renderChunkRange;
 
 			if (leftOut || rightOut || topOut || bottomOut) {
-				DestroyChunk(chunk);
+				removedChunks.Add(entry.Value);
 			}
+		}
+
+		foreach (GridChunk chunk in removedChunks) {
+			DestroyChunk(chunk);
 		}
 	}
 
 	private Vector2Int GetChunkCoordsFromPosition (Vector2 position) {
 		return Utils.GetCoordsFromPosition(position, _options.chunkSize * _cellSize);
+	}
+
+	private string GetChunkId (Vector2 coords) {
+		return coords.x + " " + coords.y;
 	}
 
 }
