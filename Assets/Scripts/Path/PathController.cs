@@ -11,6 +11,7 @@ public class PathController : MonoBehaviour {
 
 	[SerializeField] private int _length = 10;
 	[SerializeField] private int _steps = 100;
+	[SerializeField] private bool _ignorePath = false;
 
 	public static PathController Instance { get; private set; }
 
@@ -24,6 +25,10 @@ public class PathController : MonoBehaviour {
 		Func<Vector3, Vector3> getGravity,
 		Func<Vector3, Vector3> getTranslation
 	) {
+		if (_ignorePath) {
+			return;
+		}
+
 		float deltaTime = 0.02f;
 		float stepLength = (float) _length / _steps;
 		List<Vector3> points = new List<Vector3>() { position };
