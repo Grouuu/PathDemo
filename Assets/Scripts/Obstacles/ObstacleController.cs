@@ -1,26 +1,16 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/**
- * Require:
- * . Grid
- */
+[RequireComponent(typeof(ObstacleGrid))]
 public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
 
 	[SerializeField] ObstacleBody _bodyPrefab;
-	[SerializeField] Rigidbody _playerBody;
-	[SerializeField] [Range(2, 10)] int _renderChunkRange = 2;
-	[SerializeField] [Range(3, 10)] int _chunkSize = 5;
-	[SerializeField] float _minDistance = 5;
-	[SerializeField] float _spawnRadius = 10;
+	[SerializeField] Rigidbody _playerBody; // TODO avoid playerBody reference (allows any position)
 	[SerializeField] bool _ignoreCollision = false;
-	[SerializeField] bool _debug = false;
 
-	private Sampler _sampler;
+	private ObstacleGrid _grid;
 
 	public ObstacleBody[] GetObstacles() {
 		return Component.FindObjectsOfType<ObstacleBody>(false);
@@ -28,10 +18,13 @@ public class ObstacleController : MonoBehaviour {
 
 	public void UpdateObstacleField() {
 
-		List<GridPoint> points = _sampler.GetNewPoints(_playerBody.position); // TODO avoid playerBody reference (allows any position)
+		_grid.SetCenterPosition(_playerBody.position);
+
+		List<GridPoint> points = _grid.GetSpawnPoints();
 
 		foreach (GridPoint point in points) {
 			if (point.isRender) {
+
 				GameObject instance = PoolManager.Instance.GetInstance(PoolId.Obstacle);
 				instance.SetActive(true);
 
@@ -40,6 +33,7 @@ public class ObstacleController : MonoBehaviour {
 				body.transform.position = point.position;
 				body.transform.rotation = Quaternion.identity;
 				body.SetSizefactor(point.sizeFactor);
+
 				point.body = body;
 				point.OnDestroy += DestroyObstacle;
 			}
@@ -74,26 +68,11 @@ public class ObstacleController : MonoBehaviour {
 	}
 
 	private void Start () {
-		Init();
+		_grid = GetComponent<ObstacleGrid>();
 	}
 
 	private void Update () {
 		UpdateObstacleField();
-
-		if (_debug) {
-			_sampler.UpdateDebug();
-		}
-	}
-
-	private void Init() {
-		GridOptions options = new GridOptions(_renderChunkRange, _chunkSize, _minDistance, _spawnRadius);
-		Grid grid = new Grid(options);
-		_sampler = new Sampler(grid, options, GetNoiseAt);
-	}
-
-	private float GetNoiseAt (Vector2 position) {
-		float noiseScale = 1f;
-		return Mathf.PerlinNoise(position.x * noiseScale, position.y * noiseScale) * 2 + 0.5f; // [.5, 2.5]
 	}
 
 	private void DestroyObstacle (GridPoint point, ObstacleBody body) {

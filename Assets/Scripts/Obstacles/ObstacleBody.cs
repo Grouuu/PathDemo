@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(SphereCollider))]
 public class ObstacleBody : MonoBehaviour {
 
 	public float Mass => _data.Mass * _sizeFactor;
@@ -45,25 +46,5 @@ public class ObstacleBody : MonoBehaviour {
 		float scale = _defaultScale * _sizeFactor;
 		transform.localScale = new Vector3(scale, scale, scale);
 		_collider.transform.localScale = new Vector3(scale, scale, scale);
-	}
-
-	/** DEBUG **/
-	private void OnDrawGizmos () {
-		//Gizmos.color = Color.green;
-		//Gizmos.DrawWireSphere(transform.position, Radius);
-		//Gizmos.DrawWireSphere(transform.position, RadiusGravity);
-
-		//float outsideRadius = _data.RadiusGravity - _data.Radius;
-		//int stepTotal = 10;
-		//float stepLength = outsideRadius / stepTotal;
-
-		//for (int i = 0; i < stepTotal; i++) {
-		//	float distanceToSurface = _data.Radius + stepLength * i;
-		//	float gravityForce = GravityController.GetGravityForceByDistance(distanceToSurface, this);
-		//	float gravityForceNormalized = Mathf.InverseLerp(0, GravityController.GetGravityMax(this), gravityForce);
-		//	Color color = Color.Lerp(Color.blue, Color.red, gravityForceNormalized);
-		//	Gizmos.color = color;
-		//	Gizmos.DrawWireSphere(transform.position, _data.Radius + distanceToSurface);
-		//}
 	}
 }

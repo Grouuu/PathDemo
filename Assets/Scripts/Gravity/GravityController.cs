@@ -48,6 +48,17 @@ public class GravityController : MonoBehaviour {
 		return easeCoeff * body.Mass * (Instance?._gravityPower ?? 0.5f);
 	}
 
+	private static Vector3 GetNewtonGravityByPosition (Vector3 movingPosition, Vector3 staticPosition, float staticMass) {
+		// Newton's law F = G * mM / r² => a = G * M / r²
+		// dot(offset, offset) = sqrMagnitude of offset, |offset|²
+		float G = 667.4f;
+		Vector3 offset = movingPosition - staticPosition;
+		Vector3 direction = offset.normalized;
+		float sqrDistance = Vector3.Dot(offset, offset);
+		float acceleration = G * staticMass / sqrDistance;
+		return direction * acceleration;
+	}
+
 	private void Awake() {
 		Instance = this;
 	}

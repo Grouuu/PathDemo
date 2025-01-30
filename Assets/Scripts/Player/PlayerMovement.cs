@@ -4,7 +4,7 @@ using UnityEngine;
  * Require:
  * . GravityController
  * . ObstacleController
- * . (PlayerBody)
+ * . PlayerBody
  */
 public class PlayerMovement : MonoBehaviour {
 
@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour {
 	[SerializeField] private float _speedMax = 10f;
 	[SerializeField] private float _thrustPower = 5f;
 	[SerializeField] private float _rotatePower = 100f;
-	[SerializeField] private bool _debug = false;
+	[SerializeField] private bool _isDebug = false;
 
 	private Vector3 _velocityDirection => _velocity == Vector3.zero ? _playerBody.forward : _velocity.normalized;
 
@@ -43,7 +43,7 @@ public class PlayerMovement : MonoBehaviour {
 		ApplyTranslation(deltaTime);
 		ApplyVelocitySnap(deltaTime);
 
-		if (_debug) {
+		if (_isDebug) {
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _playerBody.forward * 10, Color.blue); // forward
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _velocityDirection * _velocity.magnitude * 20, Color.green); // velocity
 		}

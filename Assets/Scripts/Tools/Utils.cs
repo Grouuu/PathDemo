@@ -34,15 +34,8 @@ public static class Utils {
 		);
 	}
 
-	public static void DrawDebugRectangle (Vector3 position, Vector2 size, Color color, float duration = 10) {
-		DrawDebugRectangle(new Rect(position, size), color, duration);
-	}
-
-	public static void DrawDebugRectangle (Rect rect, Color color, float duration = 10) {
-		Debug.DrawLine(new Vector3(rect.x, rect.y), new Vector3(rect.x + rect.width, rect.y), color, duration);
-		Debug.DrawLine(new Vector3(rect.x, rect.y), new Vector3(rect.x, rect.y + rect.height), color, duration);
-		Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y + rect.height), new Vector3(rect.x + rect.width, rect.y), color, duration);
-		Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y + rect.height), new Vector3(rect.x, rect.y + rect.height), color, duration);
+	public static void PauseEditor () {
+		UnityEditor.EditorApplication.isPaused = true;
 	}
 
 }
