@@ -11,6 +11,7 @@ public class PathController : MonoBehaviour {
 
 	[SerializeField] private int _length = 10;
 	[SerializeField] private int _steps = 100;
+	[SerializeField] private float _width = 0.2f;
 	[SerializeField] private bool _ignorePath = false;
 
 	public static PathController Instance { get; private set; }
@@ -33,7 +34,7 @@ public class PathController : MonoBehaviour {
 		float stepLength = (float) _length / _steps;
 		List<Vector3> points = new List<Vector3>() { position };
 
-		float currentLength = 0f;
+		float currentLength = 0;
 		bool isEnd = false;
 		int safeBreakCount = 0;
 
@@ -81,6 +82,16 @@ public class PathController : MonoBehaviour {
 			}
 		}
 
+		float currentProgress = currentLength / _length;
+
+		Gradient gradient = _lineRenderer.colorGradient;
+		GradientAlphaKey[] alphaKeys = gradient.alphaKeys;
+		alphaKeys[1].alpha = 1 - currentProgress;
+		gradient.alphaKeys = alphaKeys;
+
+		_lineRenderer.startWidth = _width;
+		_lineRenderer.endWidth = _width - (_width * currentProgress);
+		_lineRenderer.colorGradient = gradient;
 		_lineRenderer.positionCount = points.Count;
 		_lineRenderer.SetPositions(points.ToArray());
 	}
