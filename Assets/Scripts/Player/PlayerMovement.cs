@@ -55,9 +55,9 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	private void ApplyRotationForce (float deltaTime) {
-		Quaternion rotationForce = Quaternion.AngleAxis(_rotateForce * deltaTime, _playerBody.up);
-		_playerBody.Rotate(rotationForce);
-		_velocity = rotationForce * _velocity;
+		Quaternion rotation = Quaternion.AngleAxis(_rotateForce * deltaTime, _playerBody.up);
+		_playerBody.Rotate(rotation);
+		_velocity = rotation * _velocity;
 	}
 
 	private void ApplyAccelerationForce (float deltaTime) {
