@@ -5,11 +5,9 @@ using UnityEngine;
 /**
  * Based on https://github.com/SebLague/Poisson-Disc-Sampling/blob/master/Poisson%20Disc%20Sampling%20E01/PoissonDiscSampling.cs
  */
+[RequireComponent(typeof(Sampler))]
 public class ObstacleGrid : MonoBehaviour {
 
-	// TODO merge min distance and texture data into a data struct
-
-	[SerializeField] private Texture2D _levelData;
 	[SerializeField] private Vector2Int _gridSize = Vector2Int.one * 20;
 	[SerializeField] private int _cellSize = 1;
 	[SerializeField] private float _minDistance = 3;
@@ -18,6 +16,7 @@ public class ObstacleGrid : MonoBehaviour {
 	[SerializeField] private bool _isDebug = false;
 
 	private Dictionary<string, GridPoint> _points = new Dictionary<string, GridPoint>();
+	private Sampler _sampler;
 	private Vector2 _centerPosition;
 	private Vector2Int _centerCoords;
 	private Vector4 _bounds;
@@ -32,13 +31,9 @@ public class ObstacleGrid : MonoBehaviour {
 		_minDistance = minDistance;
 	}
 
-	public void SetLevelData (Texture2D data) {
-		_levelData = data;
-	}
-
 	public List<GridPoint> GetSpawnPoints () {
 
-		if (!isUpdateAllowed()) {
+		if (!IsUpdateAllowed()) {
 			// not dirty enough
 			return new List<GridPoint>();
 		}
@@ -53,11 +48,16 @@ public class ObstacleGrid : MonoBehaviour {
 		return GenerateRandomPoints(oldBounds, oldCoords);
 	}
 
-	private void Start () {
-		_halfGridSize = _gridSize / 2;
+	private void Awake () {
+		_sampler = GetComponent<Sampler>();
 	}
 
-	private bool isUpdateAllowed () {
+	private void Start () {
+		_halfGridSize = _gridSize / 2;
+		_sampler.SetSamplingSize(_gridSize);
+	}
+
+	private bool IsUpdateAllowed () {
 
 		Vector2Int newCenterCoords = GetCoordsFromPosition(_centerPosition);
 		bool firstCall = _points.Count == 0;
@@ -70,12 +70,12 @@ public class ObstacleGrid : MonoBehaviour {
 		return enoughShift || firstCall;
 	}
 
-	private void ClearOutOfBoundsPoints (Vector4 newBounds) {
+	private void ClearOutOfBoundsPoints (Vector4 bounds) {
 
 		List<string> deleteKeys = new List<string>();
 
 		foreach (KeyValuePair<string, GridPoint> entry in _points) {
-			if (!isPositionInBounds(entry.Value.position, newBounds)) {
+			if (!isPositionInBounds(entry.Value.position, bounds)) {
 				deleteKeys.Add(entry.Key);
 			}
 		}
@@ -108,19 +108,16 @@ public class ObstacleGrid : MonoBehaviour {
 				float angle = UnityEngine.Random.value * Mathf.PI * 2;
 				Vector2 direction = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
 				Vector2 candidatePosition = spawnCentre.position + direction * UnityEngine.Random.Range(spawnCentre.reservedDistance, spawnCentre.reservedDistance + _minDistance);
-				float candidateFactor = GetFactorAt(candidatePosition);
+				float candidateFactor = _sampler.GetFactorAt(candidatePosition);
 
 				if (candidateFactor == 0) {
+					// position not allowed by the sampler
 					continue;
 				}
 
 				float reservedDistance = _minDistance * candidateFactor;
-				Vector2Int candidateCoords = GetCoordsFromPosition(candidatePosition);
 
-				if (
-					isInNewCells(candidatePosition, candidateCoords, oldBounds, _bounds)
-					&& isValidPoint(candidatePosition, reservedDistance, gridShiftDirection)
-				) {
+				if (IsInNewBounds(candidatePosition, oldBounds, _bounds) && IsValidPoint(candidatePosition, reservedDistance, gridShiftDirection)) {
 					GridPoint point = AddPoint(candidatePosition, reservedDistance, candidateFactor);
 					points.Add(point);
 					spawnPoints.Add(point);
@@ -135,7 +132,7 @@ public class ObstacleGrid : MonoBehaviour {
 
 			safeBreakCount++;
 			if (safeBreakCount >= 10000) {
-				Debug.Log("Infinite sample spawn points loop suspected");
+				Debug.Log("Infinite spawn points loop suspected");
 				break;
 			}
 		}
@@ -155,7 +152,7 @@ public class ObstacleGrid : MonoBehaviour {
 		return point;
 	}
 
-	private bool isInNewCells (Vector2 position, Vector2Int coords, Vector4 oldBounds, Vector4 newBounds) {
+	private bool IsInNewBounds (Vector2 position, Vector4 oldBounds, Vector4 newBounds) {
 
 		if (isPositionInBounds(position, oldBounds)) {
 			return false;
@@ -168,7 +165,7 @@ public class ObstacleGrid : MonoBehaviour {
 		return true;
 	}
 
-	private bool isValidPoint (Vector2 candidatePosition, float reservedDistance, Vector2Int shiftDirection) {
+	private bool IsValidPoint (Vector2 candidatePosition, float reservedDistance, Vector2Int shiftDirection) {
 
 		Vector2Int candidateCoords = GetCoordsFromPosition(candidatePosition);
 
@@ -205,6 +202,7 @@ public class ObstacleGrid : MonoBehaviour {
 
 					float sqrDistance = (candidatePosition - checkPoint.position).sqrMagnitude;
 					float maxReservedDistance = Mathf.Max(reservedDistance, checkPoint.reservedDistance);
+
 					if (sqrDistance < maxReservedDistance * maxReservedDistance) {
 						return false;
 					}
@@ -234,9 +232,9 @@ public class ObstacleGrid : MonoBehaviour {
 	}
 
 	private List<GridPoint> GetSeedPoint (Vector4 bounds, Vector2Int shift) {
-		List<GridPoint> seedPoints = new List<GridPoint>();
 
 		// points added to the grid but not to the scene
+		List<GridPoint> seedPoints = new List<GridPoint>();
 
 		// at start
 		if (bounds == Vector4.zero) {
@@ -263,35 +261,18 @@ public class ObstacleGrid : MonoBehaviour {
 		};
 
 		foreach (Vector2 sidePosition in seedsBySide) {
-			addSeedPoint(sidePosition);
+			if (sidePosition != Vector2.zero) {
+				addSeedPoint(sidePosition);
+			}
 		}
 
-			return seedPoints;
+		return seedPoints;
 	}
 
 	private Vector2Int GetGridShift (Vector2Int oldCoords, Vector2Int newCoords) {
 		int horizontalShift = (int) System.Math.Sign(newCoords.x - oldCoords.x) * Mathf.Abs(oldCoords.x - newCoords.x);
 		int verticalShift = (int) System.Math.Sign(newCoords.y - oldCoords.y) * Mathf.Abs(oldCoords.y - newCoords.y);
 		return new Vector2Int(horizontalShift, verticalShift);
-	}
-
-	/** Return a value between 0.5 and 1.5, but return 0 if no obstacle is allowed at this position */
-	private float GetFactorAt (Vector2 position) {
-
-		float noiseScale = 1f;
-		float noiseValue = Mathf.Clamp01(Mathf.PerlinNoise(position.x * noiseScale, position.y * noiseScale)); // [0, 1]
-
-		int textureX = Mathf.RoundToInt(position.x / _gridSize.x);
-		int textureY = Mathf.RoundToInt(position.y / _gridSize.x + _levelData.height / 2);
-		Color textureColor = _levelData.GetPixelData<Color32>(0)[textureX + textureY * _levelData.width];
-		float textureValue = textureColor.grayscale; // [0, 1]
-
-		if (textureValue == 0) {
-			// black = no obstacle allowed
-			return 0;
-		}
-
-		return 0.5f + (textureValue * 0.75f) + noiseValue * 0.25f;
 	}
 
 	private string GetCellId (Vector2Int coords) {
