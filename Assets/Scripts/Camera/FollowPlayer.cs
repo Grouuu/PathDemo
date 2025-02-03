@@ -7,7 +7,7 @@ public class FollowPlayer : MonoBehaviour {
 	[SerializeField] private GameObject _player;
 
 	private void Update() {
-		transform.position = _player.transform.position + new Vector3(0, 0, -10);
+		transform.position = _player.transform.position + new Vector3(1.5f, 0, -10);
 	}
 
 }

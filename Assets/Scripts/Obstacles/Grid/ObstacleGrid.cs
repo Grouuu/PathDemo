@@ -7,6 +7,9 @@ using UnityEngine;
  */
 public class ObstacleGrid : MonoBehaviour {
 
+	// TODO merge min distance and texture data into a data struct
+
+	[SerializeField] private Texture2D _levelData;
 	[SerializeField] private Vector2Int _gridSize = Vector2Int.one * 20;
 	[SerializeField] private int _cellSize = 1;
 	[SerializeField] private float _minDistance = 3;
@@ -18,6 +21,7 @@ public class ObstacleGrid : MonoBehaviour {
 	private Vector2 _centerPosition;
 	private Vector2Int _centerCoords;
 	private Vector4 _bounds;
+	private Vector2 _halfGridSize;
 	private int _minShiftBeforeUpdate => Mathf.CeilToInt(_minDistance * 2 / _cellSize);
 
 	public void SetCenterPosition (Vector2 position) {
@@ -26,6 +30,10 @@ public class ObstacleGrid : MonoBehaviour {
 
 	public void SetMinDistance (float minDistance) {
 		_minDistance = minDistance;
+	}
+
+	public void SetLevelData (Texture2D data) {
+		_levelData = data;
 	}
 
 	public List<GridPoint> GetSpawnPoints () {
@@ -43,6 +51,10 @@ public class ObstacleGrid : MonoBehaviour {
 		ClearOutOfBoundsPoints(_bounds);
 
 		return GenerateRandomPoints(oldBounds, oldCoords);
+	}
+
+	private void Start () {
+		_halfGridSize = _gridSize / 2;
 	}
 
 	private bool isUpdateAllowed () {
@@ -96,7 +108,12 @@ public class ObstacleGrid : MonoBehaviour {
 				float angle = UnityEngine.Random.value * Mathf.PI * 2;
 				Vector2 direction = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
 				Vector2 candidatePosition = spawnCentre.position + direction * UnityEngine.Random.Range(spawnCentre.reservedDistance, spawnCentre.reservedDistance + _minDistance);
-				float candidateFactor = GetNoiseAt(candidatePosition);
+				float candidateFactor = GetFactorAt(candidatePosition);
+
+				if (candidateFactor == 0) {
+					continue;
+				}
+
 				float reservedDistance = _minDistance * candidateFactor;
 				Vector2Int candidateCoords = GetCoordsFromPosition(candidatePosition);
 
@@ -207,13 +224,12 @@ public class ObstacleGrid : MonoBehaviour {
 	}
 
 	private Vector4 GetBounds (Vector2 centerPosition) {
-		Vector2 halfGridSize = _gridSize / 2;
 		// top-left (xy), right-bottom (z, w)
 		return new Vector4(
-			centerPosition.x - halfGridSize.x,
-			centerPosition.y + halfGridSize.y,
-			centerPosition.x + halfGridSize.x,
-			centerPosition.y - halfGridSize.y
+			centerPosition.x - _halfGridSize.x,
+			centerPosition.y + _halfGridSize.y,
+			centerPosition.x + _halfGridSize.x,
+			centerPosition.y - _halfGridSize.y
 		);
 	}
 
@@ -231,7 +247,6 @@ public class ObstacleGrid : MonoBehaviour {
 
 		float shiftWidth = Mathf.Abs(shift.x * _cellSize);
 		float shiftHeight = Mathf.Abs(shift.y * _cellSize);
-		Vector2 halfGridSize = _gridSize / 2;
 
 		Action<Vector2> addSeedPoint = seedPosition => {
 			if (seedPosition != Vector2.zero) {
@@ -241,10 +256,10 @@ public class ObstacleGrid : MonoBehaviour {
 		};
 
 		Vector2[] seedsBySide = new Vector2[4] {
-			shift.x > 0 ? _centerPosition + new Vector2(halfGridSize.x - shiftWidth / 2, 0) : Vector2.zero,  // right
-			shift.x < 0 ? _centerPosition - new Vector2(halfGridSize.x - shiftWidth / 2, 0) : Vector2.zero,  // left
-			shift.y > 0 ? _centerPosition + new Vector2(0, halfGridSize.y - shiftHeight / 2) : Vector2.zero, // top
-			shift.y < 0 ? _centerPosition - new Vector2(0, halfGridSize.y - shiftHeight / 2) : Vector2.zero  // bottom
+			shift.x > 0 ? _centerPosition + new Vector2(_halfGridSize.x - shiftWidth / 2, 0) : Vector2.zero,  // right
+			shift.x < 0 ? _centerPosition - new Vector2(_halfGridSize.x - shiftWidth / 2, 0) : Vector2.zero,  // left
+			shift.y > 0 ? _centerPosition + new Vector2(0, _halfGridSize.y - shiftHeight / 2) : Vector2.zero, // top
+			shift.y < 0 ? _centerPosition - new Vector2(0, _halfGridSize.y - shiftHeight / 2) : Vector2.zero  // bottom
 		};
 
 		foreach (Vector2 sidePosition in seedsBySide) {
@@ -260,9 +275,23 @@ public class ObstacleGrid : MonoBehaviour {
 		return new Vector2Int(horizontalShift, verticalShift);
 	}
 
-	private float GetNoiseAt (Vector2 position) {
+	/** Return a value between 0.5 and 1.5, but return 0 if no obstacle is allowed at this position */
+	private float GetFactorAt (Vector2 position) {
+
 		float noiseScale = 1f;
-		return 1 + Mathf.PerlinNoise(position.x * noiseScale, position.y * noiseScale) - 0.5f; // [.5, 1.5]
+		float noiseValue = Mathf.Clamp01(Mathf.PerlinNoise(position.x * noiseScale, position.y * noiseScale)); // [0, 1]
+
+		int textureX = Mathf.RoundToInt(position.x / _gridSize.x);
+		int textureY = Mathf.RoundToInt(position.y / _gridSize.x + _levelData.height / 2);
+		Color textureColor = _levelData.GetPixelData<Color32>(0)[textureX + textureY * _levelData.width];
+		float textureValue = textureColor.grayscale; // [0, 1]
+
+		if (textureValue == 0) {
+			// black = no obstacle allowed
+			return 0;
+		}
+
+		return 0.5f + (textureValue * 0.75f) + noiseValue * 0.25f;
 	}
 
 	private string GetCellId (Vector2Int coords) {
