@@ -17,7 +17,9 @@ public class PathController : MonoBehaviour {
 	public static PathController Instance { get; private set; }
 
 	private LineRenderer _lineRenderer;
-	private float _minLength = 0.1f; // prevent safe break trigger
+	private float _minLength = 0.01f; // prevent safe break trigger
+
+	// TODO to many points with low velocity (around 1000 points)
 
 	public void UpdatePath(
 		Vector3 position,
@@ -43,12 +45,13 @@ public class PathController : MonoBehaviour {
 			Vector3 gravityVelocity = getGravity(position) * deltaTime;
 			velocity += gravityVelocity;
 			Vector3 translation = getTranslation(velocity) * deltaTime;
+			float lengthAdded = translation.magnitude;
 
-			if (translation.magnitude == 0) {
-				translation = forward.normalized * _minLength;
+			if (lengthAdded < _minLength) {
+				translation = forward * _minLength;
+				lengthAdded = _minLength;
 			}
 
-			float lengthAdded = translation.magnitude;
 			currentLength += lengthAdded;
 
 			// end of the path
