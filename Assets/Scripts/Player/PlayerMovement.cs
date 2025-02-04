@@ -12,11 +12,11 @@ public class PlayerMovement : MonoBehaviour {
 	[SerializeField] private float _speedMax = 10f;
 	[SerializeField] private float _thrustPower = 5f;
 	[SerializeField] private float _rotatePower = 100f;
+	[SerializeField] private Vector3 _velocity = Vector3.zero;
 	[SerializeField] private bool _isDebug = false;
 
 	private Vector3 _velocityDirection => _velocity == Vector3.zero ? _playerBody.forward : _velocity.normalized;
 
-	private Vector3 _velocity = Vector3.zero;
 	private float _thrustForce = 0;
 	private float _rotateForce = 0;
 

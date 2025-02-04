@@ -908,4 +908,5 @@ MonoBehaviour:
   _speedMax: 10
   _thrustPower: 5
   _rotatePower: 50
+  _velocity: {x: 0.1, y: 0, z: 0}
   _isDebug: 1
