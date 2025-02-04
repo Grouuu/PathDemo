@@ -11,21 +11,21 @@ public class GravityController : MonoBehaviour {
 	[SerializeField] private float _gravityPower = 0.5f;
 	[SerializeField] private bool _ignoreGravity = false;
 
+	private ObstacleBody[] _bodies;
+
 	public Vector3 GetGravityByPosition(Vector3 position, float magnitudeMax = float.MaxValue) {
 
 		if (_ignoreGravity) {
 			return Vector3.zero;
 		}
 
-		ObstacleBody[] bodies = ObstacleController.Instance.GetObstacles();
-
-		if (bodies == null || bodies.Length == 0) {
+		if (_bodies == null || _bodies.Length == 0) {
 			return Vector3.zero;
 		}
 
 		Vector3 gravity = Vector3.zero;
 
-		foreach (ObstacleBody body in bodies) {
+		foreach (ObstacleBody body in _bodies) {
 			Vector3 direction = body.transform.position - position;
 			float distance = direction.magnitude;
 			bool inRange = distance <= body.RadiusGravity;
@@ -61,5 +61,14 @@ public class GravityController : MonoBehaviour {
 
 	private void Awake() {
 		Instance = this;
+		ObstacleController.OnObstaclesUpdate += UpdateObstacles;
+	}
+
+	private void OnDestroy () {
+		ObstacleController.OnObstaclesUpdate -= UpdateObstacles;
+	}
+
+	private void UpdateObstacles () {
+		_bodies = ObstacleController.Instance.GetObstacles();
 	}
 }

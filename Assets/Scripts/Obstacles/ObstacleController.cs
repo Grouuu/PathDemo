@@ -1,24 +1,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void OnObstaclesUpdate ();
+
 [RequireComponent(typeof(ObstacleGrid))]
 public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
+	public static event OnObstaclesUpdate OnObstaclesUpdate;
 
 	[SerializeField] ObstacleBody _bodyPrefab;
-	[SerializeField] Rigidbody _playerBody; // TODO avoid playerBody reference (allows any position)
+	[SerializeField] Transform _target;
 	[SerializeField] bool _ignoreCollision = false;
 
 	private ObstacleGrid _grid;
 
 	public ObstacleBody[] GetObstacles() {
-		return Component.FindObjectsOfType<ObstacleBody>(false);
+		return FindObjectsByType<ObstacleBody>(FindObjectsSortMode.None);
 	}
 
 	public void UpdateObstacleField() {
 
-		_grid.SetCenterPosition(_playerBody.position);
+		_grid.SetCenterPosition(_target.position);
 
 		List<GridPoint> points = _grid.GetSpawnPoints();
 
@@ -37,6 +40,10 @@ public class ObstacleController : MonoBehaviour {
 				point.body = body;
 				point.OnDestroy += DestroyObstacle;
 			}
+		}
+
+		if (points.Count != 0) {
+			OnObstaclesUpdate();
 		}
 	}
 
