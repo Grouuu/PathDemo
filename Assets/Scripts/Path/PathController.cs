@@ -6,7 +6,6 @@ using UnityEngine;
  * Require:
  * . ObstacleBody
  */
-[RequireComponent(typeof(LineRenderer))]
 public class PathController : MonoBehaviour {
 
 	[SerializeField] private LineRenderer _lineRenderer;
