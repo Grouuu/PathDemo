@@ -8,6 +8,9 @@ using UnityEngine;
  */
 public class PlayerMovement : MonoBehaviour {
 
+	public float ThrustForce => _thrustForce / _thrustPower; // [-1, 1]
+	public Vector3 Velocity => _velocity;
+
 	[SerializeField] private PlayerBody _playerBody;
 	[SerializeField] private float _speedMax = 10f;
 	[SerializeField] private float _thrustPower = 5f;
@@ -42,7 +45,7 @@ public class PlayerMovement : MonoBehaviour {
 		ApplyGravityForce(deltaTime);
 		ClampVelocity();
 		ApplyTranslation(deltaTime);
-		ApplyVelocitySnap(deltaTime);
+		ApplyVelocitySnap();
 
 		if (_isDebug) {
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _playerBody.forward * 10, Color.blue); // forward
@@ -58,7 +61,10 @@ public class PlayerMovement : MonoBehaviour {
 	private void ApplyRotationForce (float deltaTime) {
 		Quaternion rotation = Quaternion.AngleAxis(_rotateForce * deltaTime, _playerBody.up);
 		_playerBody.Rotate(rotation);
-		_velocity = rotation * _velocity;
+
+		if (_velocity != Vector3.zero) {
+			_velocity = rotation * _velocity;
+		}
 	}
 
 	private void ApplyAccelerationForce (float deltaTime) {
@@ -82,10 +88,10 @@ public class PlayerMovement : MonoBehaviour {
 		_playerBody.Translate(translation);
 	}
 
-	private void ApplyVelocitySnap (float deltaTime) {
+	private void ApplyVelocitySnap () {
 		if (_velocity != Vector3.zero) {
 			// face the velocity
-			float deltaAngle = Vector3.SignedAngle(_playerBody.forward, _velocity, _playerBody.up);
+			float deltaAngle = Vector3.SignedAngle(_playerBody.forward, _velocityDirection, _playerBody.up);
 			Quaternion rotationVelocity = Quaternion.AngleAxis(deltaAngle * _velocitySnapPower, _playerBody.up);
 			_playerBody.Rotate(rotationVelocity);
 		}
