@@ -9,6 +9,7 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class PathController : MonoBehaviour {
 
+	[SerializeField] private LineRenderer _lineRenderer;
 	[SerializeField] private int _length = 10;
 	[SerializeField] private int _steps = 100;
 	[SerializeField] private float _width = 0.2f;
@@ -16,7 +17,6 @@ public class PathController : MonoBehaviour {
 
 	public static PathController Instance { get; private set; }
 
-	private LineRenderer _lineRenderer;
 	private float _minLength = 0.01f; // prevent safe break trigger
 
 	// TODO to many points with low velocity (around 1000 points)
@@ -101,7 +101,6 @@ public class PathController : MonoBehaviour {
 
 	private void Awake() {
 		Instance = this;
-		_lineRenderer = GetComponent<LineRenderer>();
 	}
 
 }
