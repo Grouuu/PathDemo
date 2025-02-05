@@ -27,20 +27,25 @@ public class PoolManager: MonoBehaviour {
 		_poolInstances.Add(data.id, instances);
 	}
 
-	public GameObject GetInstance (PoolId id) {
+	public T GetInstance<T> (PoolId id) {
 
 		if (!HasId(id)) {
 			throw new Exception($"No ${id} pool id found");
 		}
 
 		Queue<GameObject> queue = _poolInstances[id];
+		GameObject instance;
 
 		if (queue.Count > 0) {
-			return _poolInstances[id].Dequeue();
+			instance = _poolInstances[id].Dequeue();
+		} else {
+			Debug.LogWarning($"No more ${id} instances available");
+			instance = CreateInstance(GetPoolData(id));
 		}
 
-		Debug.LogWarning($"No more ${id} instances available");
-		return CreateInstance(GetPoolData(id));
+		instance.SetActive(true);
+
+		return instance.GetComponent<T>();
 	}
 
 	public void FreeInstance (PoolId id, GameObject instance) {

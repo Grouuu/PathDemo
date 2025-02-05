@@ -28,10 +28,7 @@ public class ObstacleController : MonoBehaviour {
 		foreach (GridPoint point in points) {
 			if (point.isRender) {
 
-				GameObject instance = PoolManager.Instance.GetInstance(PoolId.Obstacle);
-				instance.SetActive(true);
-
-				ObstacleBody body = instance.GetComponent<ObstacleBody>();
+				ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(PoolId.Obstacle);
 				body.transform.parent = transform;
 				body.transform.position = point.position;
 				body.transform.rotation = Quaternion.identity;

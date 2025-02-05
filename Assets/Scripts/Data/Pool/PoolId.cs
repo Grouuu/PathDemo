@@ -1,4 +1,5 @@
 
 public enum PoolId {
-	Obstacle
+	Obstacle,
+	Stars
 }
