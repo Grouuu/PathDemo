@@ -59,4 +59,12 @@ class Debug : UnityEngine.Debug {
         Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y - rect.height), new Vector3(rect.x, rect.y - rect.height), color, duration);
         Debug.DrawLine(new Vector3(rect.x, rect.y - rect.height), new Vector3(rect.x, rect.y), color, duration);
     }
+
+    public static void DrawCenteredRectangle (Vector3 position, Vector3 size, Color color, float duration = 10) {
+        Vector3 halfSize = size / 2;
+        Debug.DrawLine(new Vector3(position.x - halfSize.x, position.y + halfSize.y), new Vector3(position.x + halfSize.x, position.y + halfSize.y), color, duration);
+        Debug.DrawLine(new Vector3(position.x + halfSize.x, position.y + halfSize.y), new Vector3(position.x + halfSize.x, position.y - halfSize.y), color, duration);
+        Debug.DrawLine(new Vector3(position.x + halfSize.x, position.y - halfSize.y), new Vector3(position.x - halfSize.x, position.y - halfSize.y), color, duration);
+        Debug.DrawLine(new Vector3(position.x - halfSize.x, position.y - halfSize.y), new Vector3(position.x - halfSize.x, position.y + halfSize.y), color, duration);
+    }
 }
