@@ -63,6 +63,12 @@ public class PlayerMovement : MonoBehaviour {
 
 	private void ApplyAccelerationForce (float deltaTime) {
 		Vector3 acceleration = _playerBody.forward * _thrustForce * deltaTime;
+
+		if (Vector3.Dot(_velocity, _velocity + acceleration) <= 0) {
+			// prevent backward
+			return;
+		}
+
 		_velocity += acceleration;
 	}
 
