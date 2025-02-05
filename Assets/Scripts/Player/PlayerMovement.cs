@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour {
 	[SerializeField] private float _speedMax = 10f;
 	[SerializeField] private float _thrustPower = 5f;
 	[SerializeField] private float _rotatePower = 100f;
+	[SerializeField] [Range (0, 1)] private float _velocitySnapPower = 0.5f;
 	[SerializeField] private Vector3 _velocity = Vector3.zero;
 	[SerializeField] private bool _isDebug = false;
 
@@ -79,7 +80,7 @@ public class PlayerMovement : MonoBehaviour {
 		if (_velocity != Vector3.zero) {
 			// face the velocity
 			float deltaAngle = Vector3.SignedAngle(_playerBody.forward, _velocity, _playerBody.up);
-			Quaternion rotationVelocity = Quaternion.AngleAxis(deltaAngle * deltaTime, _playerBody.up);
+			Quaternion rotationVelocity = Quaternion.AngleAxis(deltaAngle * _velocitySnapPower, _playerBody.up);
 			_playerBody.Rotate(rotationVelocity);
 		}
 	}
