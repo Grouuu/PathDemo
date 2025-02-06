@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour {
 	[SerializeField] private float _rotatePower = 100f;
 	[SerializeField] [Range (0, 1)] private float _velocitySnapPower = 0.5f;
 	[SerializeField] private Vector3 _velocity = Vector3.zero;
+	[SerializeField] private bool _isSnapVelocity = true;
 	[SerializeField] private bool _isDebug = false;
 
 	private Vector3 _velocityDirection => _velocity == Vector3.zero ? _playerBody.forward : _velocity.normalized;
@@ -69,12 +70,6 @@ public class PlayerMovement : MonoBehaviour {
 
 	private void ApplyAccelerationForce (float deltaTime) {
 		Vector3 acceleration = _playerBody.forward * _thrustForce * deltaTime;
-
-		if (Vector3.Dot(_velocity, _velocity + acceleration) <= 0) {
-			// prevent backward
-			return;
-		}
-
 		_velocity += acceleration;
 	}
 
@@ -89,7 +84,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	private void ApplyVelocitySnap () {
-		if (_velocity != Vector3.zero) {
+		if (_isSnapVelocity && _velocity != Vector3.zero && _rotateForce == 0 && _thrustForce == 0) {
 			// face the velocity
 			float deltaAngle = Vector3.SignedAngle(_playerBody.forward, _velocityDirection, _playerBody.up);
 			Quaternion rotationVelocity = Quaternion.AngleAxis(deltaAngle * _velocitySnapPower, _playerBody.up);
