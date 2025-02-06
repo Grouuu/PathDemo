@@ -4,6 +4,7 @@ using UnityEngine;
  * Require:
  * . GravityController
  * . ObstacleController
+ * . PathController
  * . PlayerBody
  */
 public class PlayerMovement : MonoBehaviour {

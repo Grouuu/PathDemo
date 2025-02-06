@@ -11,6 +11,7 @@ public class StarsParticles : MonoBehaviour {
 	[SerializeField] private float _minStarSize = 0.05f;
 	[SerializeField] private float _maxStarSize = 0.15f;
 	[SerializeField] private float _timeBetweeenUpdate = 1;
+	[SerializeField] private bool _isDebug = false;
 
 	private float _timeBeforeUpdate;
 	private Vector2 _viewportSize;
@@ -64,7 +65,9 @@ public class StarsParticles : MonoBehaviour {
 
 		_boxes.Add(GetBoxId(coords), box);
 
-		Debug.DrawCenteredRectangle(boxPosition, _viewportSize, Color.red);
+		if (_isDebug) {
+			Debug.DrawCenteredRectangle(boxPosition, _viewportSize, Color.red);
+		}
 
 		SetParticles(box);
 	}
