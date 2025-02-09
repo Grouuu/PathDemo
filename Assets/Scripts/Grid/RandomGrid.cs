@@ -5,8 +5,8 @@ using UnityEngine;
 /**
  * Based on https://github.com/SebLague/Poisson-Disc-Sampling/blob/master/Poisson%20Disc%20Sampling%20E01/PoissonDiscSampling.cs
  */
-[RequireComponent(typeof(Sampler))]
-public class ObstacleGrid : MonoBehaviour {
+[RequireComponent(typeof(RandomSampler))]
+public class RandomGrid : MonoBehaviour {
 
 	[SerializeField] private Vector2Int _gridSize = Vector2Int.one * 20;
 	[SerializeField] private int _cellSize = 1;
@@ -16,7 +16,7 @@ public class ObstacleGrid : MonoBehaviour {
 	[SerializeField] private bool _isDebug = false;
 
 	private Dictionary<string, GridPoint> _points = new Dictionary<string, GridPoint>();
-	private Sampler _sampler;
+	private RandomSampler _sampler;
 	private Vector2 _centerPosition;
 	private Vector2Int _centerCoords;
 	private Vector4 _bounds;
@@ -49,7 +49,7 @@ public class ObstacleGrid : MonoBehaviour {
 	}
 
 	private void Awake () {
-		_sampler = GetComponent<Sampler>();
+		_sampler = GetComponent<RandomSampler>();
 	}
 
 	private void Start () {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Sampler : MonoBehaviour {
+public class RandomSampler : MonoBehaviour {
 
 	[SerializeField] private Texture2D _map;
 

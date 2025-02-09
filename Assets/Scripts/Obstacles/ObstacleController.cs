@@ -3,7 +3,7 @@ using UnityEngine;
 
 public delegate void OnObstaclesUpdate ();
 
-[RequireComponent(typeof(ObstacleGrid))]
+[RequireComponent(typeof(RandomGrid))]
 public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
@@ -11,9 +11,11 @@ public class ObstacleController : MonoBehaviour {
 
 	[SerializeField] ObstacleBody _bodyPrefab;
 	[SerializeField] Transform _target;
+	[SerializeField] Transform _parent;
 	[SerializeField] bool _ignoreCollision = false;
 
-	private ObstacleGrid _grid;
+	private RandomGrid _grid;
+	private BiomeGrid _gridBiome;
 
 	public ObstacleBody[] GetObstacles() {
 		return FindObjectsByType<ObstacleBody>(FindObjectsSortMode.None);
@@ -21,25 +23,39 @@ public class ObstacleController : MonoBehaviour {
 
 	public void UpdateObstacleField() {
 
-		_grid.SetCenterPosition(_target.position);
 
-		List<GridPoint> points = _grid.GetSpawnPoints();
+		List<GridPoint> spawnPoints = _gridBiome.UpdatePoints(_target.position);
 
-		foreach (GridPoint point in points) {
-			if (point.isRender) {
+		foreach (GridPoint point in spawnPoints) {
+			ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(PoolId.Obstacle);
+			body.transform.parent = _parent;
+			body.transform.position = point.position;
+			body.transform.rotation = Quaternion.identity;
+			body.SetSizefactor(point.sizeFactor);
 
-				ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(PoolId.Obstacle);
-				body.transform.parent = transform;
-				body.transform.position = point.position;
-				body.transform.rotation = Quaternion.identity;
-				body.SetSizefactor(point.sizeFactor);
-
-				point.body = body;
-				point.OnDestroy += DestroyObstacle;
-			}
+			point.body = body;
+			point.OnDestroy += DestroyObstacle;
 		}
 
-		if (points.Count != 0) {
+		//_grid.SetCenterPosition(_target.position);
+
+		//List<GridPoint> points = _grid.GetSpawnPoints();
+
+		//foreach (GridPoint point in points) {
+		//	if (point.isRender) {
+
+		//		ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(PoolId.Obstacle);
+		//		body.transform.parent = transform;
+		//		body.transform.position = point.position;
+		//		body.transform.rotation = Quaternion.identity;
+		//		body.SetSizefactor(point.sizeFactor);
+
+		//		point.body = body;
+		//		point.OnDestroy += DestroyObstacle;
+		//	}
+		//}
+
+		if (spawnPoints.Count != 0) {
 			OnObstaclesUpdate();
 		}
 	}
@@ -72,7 +88,8 @@ public class ObstacleController : MonoBehaviour {
 	}
 
 	private void Start () {
-		_grid = GetComponent<ObstacleGrid>();
+		_grid = GetComponent<RandomGrid>();
+		_gridBiome = GetComponent<BiomeGrid>();
 	}
 
 	private void Update () {
