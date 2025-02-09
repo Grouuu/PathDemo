@@ -14,7 +14,7 @@ public class StarsParticles : MonoBehaviour {
 	[SerializeField] private bool _isDebug = false;
 
 	private float _timeBeforeUpdate;
-	private Vector2 _viewportSize;
+	private Vector2 _sceneSize;
 	private Dictionary<string, ParticleSystem> _boxes = new Dictionary<string, ParticleSystem>();
 	private Vector2Int _currentCoords;
 	private bool _firstCall = true;
@@ -24,7 +24,7 @@ public class StarsParticles : MonoBehaviour {
 		if (Time.time > _timeBeforeUpdate) {
 
 			_timeBeforeUpdate = Time.time + _timeBetweeenUpdate;
-			_viewportSize = Utils.GetViewportSize();
+			_sceneSize = Utils.GetSceneSize();
 			Vector2Int targetCoords = GetCoordsByPosition(_target.position);
 
 			if (!_firstCall && targetCoords == _currentCoords) {
@@ -57,7 +57,7 @@ public class StarsParticles : MonoBehaviour {
 			return;
 		}
 
-		Vector2 boxPosition = coords * _viewportSize;
+		Vector2 boxPosition = coords * _sceneSize;
 		ParticleSystem box = PoolManager.Instance.GetInstance<ParticleSystem>(PoolId.Stars);
 		box.transform.parent = _parent;
 		box.transform.position = boxPosition;
@@ -66,7 +66,7 @@ public class StarsParticles : MonoBehaviour {
 		_boxes.Add(GetBoxId(coords), box);
 
 		if (_isDebug) {
-			Debug.DrawCenteredRectangle(boxPosition, _viewportSize, Color.red);
+			Debug.DrawCenteredRectangle(boxPosition, _sceneSize, Color.red);
 		}
 
 		SetParticles(box);
@@ -77,8 +77,8 @@ public class StarsParticles : MonoBehaviour {
 		ParticleSystem.Particle[] points = new ParticleSystem.Particle[_density];
 
 		for (int i = 0; i < _density; i++) {
-			float posX = Random.Range(-_viewportSize.x / 2, _viewportSize.x / 2);
-			float posY = Random.Range(-_viewportSize.y / 2, _viewportSize.y / 2);
+			float posX = Random.Range(-_sceneSize.x / 2, _sceneSize.x / 2);
+			float posY = Random.Range(-_sceneSize.y / 2, _sceneSize.y / 2);
 
 			points[i].position = new Vector2(posX, posY);
 			points[i].startSize = Random.Range(_minStarSize, _maxStarSize);
@@ -108,8 +108,8 @@ public class StarsParticles : MonoBehaviour {
 
 	private Vector2Int GetCoordsByPosition (Vector2 position) {
 		return new Vector2Int(
-			Mathf.RoundToInt(position.x / _viewportSize.x),
-			Mathf.RoundToInt(position.y / _viewportSize.y)
+			Mathf.RoundToInt(position.x / _sceneSize.x),
+			Mathf.RoundToInt(position.y / _sceneSize.y)
 		);
 	}
 

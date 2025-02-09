@@ -38,7 +38,7 @@ public static class Utils {
 		UnityEditor.EditorApplication.isPaused = true;
 	}
 
-	public static Vector2 GetViewportSize () {
+	public static Vector2 GetSceneSize () {
 		float height = Camera.main.orthographicSize * 2;
 		float width = height * Camera.main.aspect;
 		return new Vector2(width, height);
