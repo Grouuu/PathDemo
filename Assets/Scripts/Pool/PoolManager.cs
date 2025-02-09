@@ -7,6 +7,7 @@ public class PoolManager: MonoBehaviour {
 	public static PoolManager Instance;
 	public static bool IsInitialized { get; private set; } = false;
 
+	[SerializeField] private Transform _parent;
 	[SerializeField] private List<PoolData> _pools;
 
 	private Dictionary<PoolId, Queue<GameObject>> _poolInstances;
@@ -55,6 +56,7 @@ public class PoolManager: MonoBehaviour {
 		}
 
 		if (instance != null) {
+			instance.transform.parent = _parent;
 			instance.SetActive(false);
 			_poolInstances[id].Enqueue(instance);
 		}
@@ -76,6 +78,7 @@ public class PoolManager: MonoBehaviour {
 
 	private GameObject CreateInstance (PoolData data) {
 		GameObject instance = Instantiate(data.prefab);
+		instance.transform.parent = _parent;
 		instance.SetActive(false);
 		return instance;
 	}
