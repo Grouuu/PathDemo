@@ -5,22 +5,21 @@ using UnityEngine;
 public class BiomeGrid : MonoBehaviour {
 
 	[SerializeField] private float _gridScaleComparedToTheScene = 2;
-	[SerializeField] private int _cellSize = 5;
 	[SerializeField] private float _minCellShiftBeforeUpdate = 1;
 
 	private BiomeSampler _sampler;
-	private Vector2Int _gridSize;				// world size
-	private Int4 _coordsBounds;					// bottom-left and top-right coords
-	private Vector2Int _halfCoordsBoundsSize;	// half of the number of cells on xy axis
+	private Vector2Int _gridSizeInCell;         // number of cells on xy axis
+	private int _cellSizeInUnit;				// unit size of each grid cell
+	private Int4 _coordsBoundsInCell;           // bottom-left and top-right cells coords
+	private Vector2Int _halfGridSizeInCell;		// half of the number of cells on xy axis
 	private Vector2 _centerPosition;			// world position of the center of the grid
 	private bool _forceSpawnUpdate = true;		// force a spawn check
 
 	private Dictionary<string, GridPoint> _points = new Dictionary<string, GridPoint>();
 
 	public void UpdateGridSize () {
-		Vector2Int sizeInCell = Vector2Int.CeilToInt(Utils.GetSceneSize() * _gridScaleComparedToTheScene / _cellSize);
-		_gridSize = sizeInCell * _cellSize;
-		_halfCoordsBoundsSize = _gridSize / _cellSize / 2;
+		_gridSizeInCell = Vector2Int.CeilToInt(Utils.GetSceneSize() * _gridScaleComparedToTheScene / _cellSizeInUnit);
+		_halfGridSizeInCell = _gridSizeInCell / 2;
 		UpdateCoordsBounds();
 		_forceSpawnUpdate = true;
 	}
@@ -43,7 +42,7 @@ public class BiomeGrid : MonoBehaviour {
 		ClearOutOfBoundsPoints();
 
 		List<Vector2Int> freeCellsCoords = GetFreeCellsCoords();
-		List<GridPoint> spawnPoints = _sampler.GetCellsPoints(freeCellsCoords, _cellSize);
+		List<GridPoint> spawnPoints = _sampler.GetCellsPoints(freeCellsCoords);
 
 		foreach (GridPoint point in spawnPoints) {
 			_points.Add(GetCellId(point.cellCoords), point);
@@ -54,6 +53,7 @@ public class BiomeGrid : MonoBehaviour {
 
 	private void Awake () {
 		_sampler = GetComponent<BiomeSampler>();
+		_cellSizeInUnit = _sampler.GetCellSize();
 	}
 
 	private void Start () {
@@ -61,14 +61,14 @@ public class BiomeGrid : MonoBehaviour {
 	}
 
 	private void UpdateCoordsBounds () {
-		_coordsBounds = GetCoordsBounds(_centerPosition);
+		_coordsBoundsInCell = GetCoordsBoundsInCell(_centerPosition);
 	}
 
 	private List<Vector2Int> GetFreeCellsCoords () {
 		List<Vector2Int> cellsCoords = new List<Vector2Int>();
 
-		for (int coordX = _coordsBounds.x; coordX <= _coordsBounds.z; coordX++) {
-			for (int coordY = _coordsBounds.y; coordY <= _coordsBounds.w; coordY++) {
+		for (int coordX = _coordsBoundsInCell.x; coordX <= _coordsBoundsInCell.z; coordX++) {
+			for (int coordY = _coordsBoundsInCell.y; coordY <= _coordsBoundsInCell.w; coordY++) {
 
 				Vector2Int coords = new Vector2Int(coordX, coordY);
 				string key = GetCellId(coords);
@@ -87,7 +87,7 @@ public class BiomeGrid : MonoBehaviour {
 		List<string> deleteKeys = new List<string>();
 
 		foreach (KeyValuePair<string, GridPoint> entry in _points) {
-			if (!isCoordsInGrid(entry.Value.cellCoords, _coordsBounds)) {
+			if (!isCoordsInGrid(entry.Value.cellCoords, _coordsBoundsInCell)) {
 				deleteKeys.Add(entry.Key);
 			}
 		}
@@ -105,17 +105,16 @@ public class BiomeGrid : MonoBehaviour {
 	}
 
 	private Vector2Int GetCoords (Vector2 position) {
-		// centered origin
-		return new Vector2Int(
-			Mathf.RoundToInt(position.x / _cellSize),
-			Mathf.RoundToInt(position.y / _cellSize)
-		);
+		// bottom-left origin
+		int x = Mathf.FloorToInt(position.x / _cellSizeInUnit);
+		int y = Mathf.FloorToInt(position.y / _cellSizeInUnit);
+		return new Vector2Int(x, y);
 	}
 
-	private Int4 GetCoordsBounds (Vector2 position) {
+	private Int4 GetCoordsBoundsInCell (Vector2 position) {
 		Vector2Int coords = GetCoords(position);
-		Vector2Int bottomLeft = coords - _halfCoordsBoundsSize;
-		Vector2Int topRight = coords + _halfCoordsBoundsSize;
+		Vector2Int bottomLeft = coords - _halfGridSizeInCell;
+		Vector2Int topRight = coords + _halfGridSizeInCell;
 		return new Int4(
 			bottomLeft.x,
 			bottomLeft.y,

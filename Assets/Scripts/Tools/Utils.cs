@@ -44,4 +44,9 @@ public static class Utils {
 		return new Vector2(width, height);
 	}
 
+	// https://stackoverflow.com/questions/600293/how-to-check-if-a-number-is-a-power-of-2
+	public static bool IsPowerOfTwo (int value) {
+		return (value != 0) && ((value & (value - 1)) == 0);
+	}
+
 }

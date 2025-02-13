@@ -1,4 +1,6 @@
 
+using System;
+
 public struct Int4 {
 
 	public int x;
@@ -15,6 +17,23 @@ public struct Int4 {
 
 	public override string ToString() {
 		return $"{x}/{y} {z}/{w}";
+	}
+
+}
+
+[Serializable]
+public struct SizeInt {
+
+	public int width;
+	public int height;
+
+	public SizeInt (int width, int height) {
+		this.width = width;
+		this.height = height;
+	}
+
+	public override string ToString () {
+		return $"{width} {height}";
 	}
 
 }

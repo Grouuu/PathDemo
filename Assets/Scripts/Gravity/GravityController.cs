@@ -69,6 +69,6 @@ public class GravityController : MonoBehaviour {
 	}
 
 	private void UpdateObstacles () {
-		_bodies = ObstacleController.Instance.GetObstacles();
+		_bodies = ObstacleController.ObstaclesInstances.ToArray();
 	}
 }

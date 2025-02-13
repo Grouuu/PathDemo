@@ -8,21 +8,16 @@ public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
 	public static event OnObstaclesUpdate OnObstaclesUpdate;
+	public static List<ObstacleBody> ObstaclesInstances = new List<ObstacleBody>();
 
 	[SerializeField] ObstacleBody _bodyPrefab;
 	[SerializeField] Transform _target;
 	[SerializeField] Transform _parent;
 	[SerializeField] bool _ignoreCollision = false;
 
-	private RandomGrid _grid;
 	private BiomeGrid _gridBiome;
 
-	public ObstacleBody[] GetObstacles() {
-		return FindObjectsByType<ObstacleBody>(FindObjectsSortMode.None);
-	}
-
 	public void UpdateObstacleField() {
-
 
 		List<GridPoint> spawnPoints = _gridBiome.UpdatePoints(_target.position);
 
@@ -37,24 +32,6 @@ public class ObstacleController : MonoBehaviour {
 			point.OnDestroy += DestroyObstacle;
 		}
 
-		//_grid.SetCenterPosition(_target.position);
-
-		//List<GridPoint> points = _grid.GetSpawnPoints();
-
-		//foreach (GridPoint point in points) {
-		//	if (point.isRender) {
-
-		//		ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(PoolId.Obstacle);
-		//		body.transform.parent = transform;
-		//		body.transform.position = point.position;
-		//		body.transform.rotation = Quaternion.identity;
-		//		body.SetSizefactor(point.sizeFactor);
-
-		//		point.body = body;
-		//		point.OnDestroy += DestroyObstacle;
-		//	}
-		//}
-
 		if (spawnPoints.Count != 0) {
 			OnObstaclesUpdate();
 		}
@@ -66,13 +43,11 @@ public class ObstacleController : MonoBehaviour {
 			return false;
 		}
 
-		ObstacleBody[] obstacles = GetObstacles();
-
-		if (obstacles == null || obstacles.Length == 0) {
+		if (ObstaclesInstances == null || ObstaclesInstances.Count == 0) {
 			return false;
 		}
 
-		foreach (ObstacleBody body in obstacles) {
+		foreach (ObstacleBody body in ObstaclesInstances) {
 			float sqrDistance = (body.transform.position - position).sqrMagnitude;
 
 			if (sqrDistance <= body.Radius * body.Radius) {
@@ -88,7 +63,6 @@ public class ObstacleController : MonoBehaviour {
 	}
 
 	private void Start () {
-		_grid = GetComponent<RandomGrid>();
 		_gridBiome = GetComponent<BiomeGrid>();
 	}
 

@@ -1,3 +1,6 @@
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider))]
@@ -28,6 +31,14 @@ public class ObstacleBody : MonoBehaviour {
 		Init();
 	}
 
+	private void OnEnable () {
+		ObstacleController.ObstaclesInstances.Add(this);
+	}
+
+	private void OnDisable () {
+		ObstacleController.ObstaclesInstances.Remove(this);
+	}
+
 	private void Init () {
 		if (!_collider) {
 			_collider = GetComponent<SphereCollider>();
@@ -47,4 +58,12 @@ public class ObstacleBody : MonoBehaviour {
 		transform.localScale = new Vector3(scale, scale, scale);
 		_collider.transform.localScale = new Vector3(scale, scale, scale);
 	}
+
+	#if UNITY_EDITOR
+	private void OnDrawGizmosSelected () {
+		Handles.color = Color.white;
+		Handles.DrawWireDisc(transform.position, Vector3.forward, Radius);
+		Handles.DrawWireDisc(transform.position, Vector3.forward, RadiusGravity);
+	}
+	#endif
 }
