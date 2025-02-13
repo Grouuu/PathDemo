@@ -62,6 +62,10 @@ public class PoolManager: MonoBehaviour {
 		}
 	}
 
+	public bool HasId (PoolId id) {
+		return _pools.Exists((PoolData data) => data.id == id);
+	}
+
 	private void Awake () {
 		Instance = this;
 	}
@@ -81,10 +85,6 @@ public class PoolManager: MonoBehaviour {
 		instance.transform.parent = _parent;
 		instance.SetActive(false);
 		return instance;
-	}
-
-	private bool HasId (PoolId id) {
-		return _pools.Exists((PoolData data) => data.id == id);
 	}
 
 	private PoolData GetPoolData (PoolId id) {

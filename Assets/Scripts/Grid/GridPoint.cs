@@ -7,27 +7,21 @@ public class GridPoint {
 	public event OnPointDestroy OnDestroy;
 	public ObstacleBody body;
 
+	public ObstacleId obstacleId;
 	public Vector2 position;
 	public Vector2Int cellCoords;
-	public float reservedDistance;
 	public float sizeFactor;
-	public bool isRender;
-	public bool isFirst;
 
 	public GridPoint (
+		ObstacleId obstacleId,
 		Vector2 position,
 		Vector2Int cellCoords,
-		float reservedDistance,
-		float sizeFactor,
-		bool isRender = true,
-		bool isFirst = false
+		float sizeFactor
 	) {
+		this.obstacleId = obstacleId;
 		this.position = position;
 		this.cellCoords = cellCoords;
-		this.reservedDistance = reservedDistance;
 		this.sizeFactor = sizeFactor;
-		this.isRender = isRender;
-		this.isFirst = isFirst;
 	}
 
 	public void Destroy () {

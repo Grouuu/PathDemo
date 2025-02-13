@@ -1,19 +1,20 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public delegate void OnObstaclesUpdate ();
 
-[RequireComponent(typeof(RandomGrid))]
+[RequireComponent(typeof(BiomeGrid))]
 public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
 	public static event OnObstaclesUpdate OnObstaclesUpdate;
 	public static List<ObstacleBody> ObstaclesInstances = new List<ObstacleBody>();
 
-	[SerializeField] ObstacleBody _bodyPrefab;
-	[SerializeField] Transform _target;
-	[SerializeField] Transform _parent;
-	[SerializeField] bool _ignoreCollision = false;
+	[SerializeField] private Transform _target;
+	[SerializeField] private Transform _parent;
+	[SerializeField] private bool _ignoreCollision = false;
+	[SerializeField] private ObstacleData[] _obstaclesDataList;
 
 	private BiomeGrid _gridBiome;
 
@@ -22,7 +23,20 @@ public class ObstacleController : MonoBehaviour {
 		List<GridPoint> spawnPoints = _gridBiome.UpdatePoints(_target.position);
 
 		foreach (GridPoint point in spawnPoints) {
-			ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(PoolId.Obstacle);
+
+			ObstacleData obstacleData = Array.Find(_obstaclesDataList, data => data.id == point.obstacleId);
+
+			if (obstacleData == null) {
+				Debug.LogWarning($"obstacle data not found (id: {point.obstacleId})");
+				continue;
+			}
+
+			if (!PoolManager.Instance.HasId(obstacleData.pool.id)) {
+				// TODO clean old obstacles pools when not available anymore
+				PoolManager.Instance.AddPool(obstacleData.pool);
+			}
+
+			ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(obstacleData.pool.id);
 			body.transform.parent = _parent;
 			body.transform.position = point.position;
 			body.transform.rotation = Quaternion.identity;

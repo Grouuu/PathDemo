@@ -18,7 +18,6 @@ public class BiomeSampler : MonoBehaviour {
 	[HideInInspector] public event OnBiomeSamplerListUpdate OnBiomeSamplerListUpdate;
 	// end EDITOR */
 
-
 	// CONFIG
 	private BiomeId[,] GRID = new BiomeId[5, 5] {
 		{ BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None },
@@ -61,7 +60,7 @@ public class BiomeSampler : MonoBehaviour {
 		_biomeSizeInCell = _biomeSizeUnit / _cellSize;
 	}
 
-	private GridPoint? GetPoint (Vector2Int cellCoords) {
+	private GridPoint GetPoint (Vector2Int cellCoords) {
 
 		if (cellCoords.x < 0) {
 			// do not generate points on the left of the start position (out of biomes grid)
@@ -108,18 +107,19 @@ public class BiomeSampler : MonoBehaviour {
 		}
 
 		Vector2 worldPosition = cellCoords * _cellSize + Vector2.one * _unitPerPixel / 2;
-		GridPoint point = GetGridPoint(cellCoords, worldPosition);
+		GridPoint point = GetGridPoint(cellCoords, worldPosition, color);
 
 		return point;
 	}
 
-	private GridPoint GetGridPoint (Vector2Int cellCoords, Vector2 centerWorldPosition) {
+	private GridPoint GetGridPoint (Vector2Int cellCoords, Vector2 centerWorldPosition, Color32 data) {
 		Vector2 position = centerWorldPosition;
-		float reservedDistance = 1;
+		ObstacleId id = ObstacleId.Default;
 		float sizeFactor = 1;
 
+		// TODO use data to set the point
 
-		return new GridPoint(position, cellCoords, reservedDistance, sizeFactor);
+		return new GridPoint(id, position, cellCoords, sizeFactor);
 	}
 
 	private Vector2Int GetBiomeIndex (Vector2Int cellCoords) {
