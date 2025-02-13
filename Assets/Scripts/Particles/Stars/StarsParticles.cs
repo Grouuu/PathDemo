@@ -4,6 +4,7 @@ using UnityEngine;
 public class StarsParticles : MonoBehaviour {
 
 	[SerializeField] private ParticleSystem _particleSystem;
+	[SerializeField] private PoolData _poolData;
 	[SerializeField] Transform _target;
 	[SerializeField] private Transform _parent;
 	[SerializeField] private Color _color = Color.white;
@@ -86,6 +87,10 @@ public class StarsParticles : MonoBehaviour {
 		}
 
 		box.SetParticles(points, points.Length);
+	}
+
+	private void Start () {
+		PoolManager.Instance.AddPool(_poolData);
 	}
 
 	private void CleanBoxes (Vector2Int targetCoords) {

@@ -4999,6 +4999,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _particleSystem: {fileID: 3762960323231771657, guid: b47a6664413266b40a0792f89e1b5982, type: 3}
+  _poolData:
+    id: 2
+    prefab: {fileID: 7628221745280428590, guid: b47a6664413266b40a0792f89e1b5982, type: 3}
+    poolSize: 9
   _target: {fileID: 403915401}
   _parent: {fileID: 1244575389}
   _color: {r: 0.9811321, g: 0.9590606, b: 0.8006408, a: 1}
@@ -5081,13 +5085,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _parent: {fileID: 1918563050}
-  _pools:
-  - id: 1
-    prefab: {fileID: 2730072025428956595, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}
-    poolSize: 150
-  - id: 2
-    prefab: {fileID: 7628221745280428590, guid: b47a6664413266b40a0792f89e1b5982, type: 3}
-    poolSize: 9
 --- !u!1 &213338753
 GameObject:
   m_ObjectHideFlags: 0

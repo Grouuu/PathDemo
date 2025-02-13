@@ -5,12 +5,11 @@ using UnityEngine;
 public class PoolManager: MonoBehaviour {
 
 	public static PoolManager Instance;
-	public static bool IsInitialized { get; private set; } = false;
 
 	[SerializeField] private Transform _parent;
-	[SerializeField] private List<PoolData> _pools;
 
-	private Dictionary<PoolId, Queue<GameObject>> _poolInstances;
+	private List<PoolData> _pools = new List<PoolData>();
+	private Dictionary<PoolId, Queue<GameObject>> _poolInstances = new Dictionary<PoolId, Queue<GameObject>>();
 
 	public void AddPool (PoolData data) {
 
@@ -68,16 +67,6 @@ public class PoolManager: MonoBehaviour {
 
 	private void Awake () {
 		Instance = this;
-	}
-
-	private void Start () {
-		_poolInstances = new Dictionary<PoolId, Queue<GameObject>>();
-
-		foreach (PoolData data in _pools) {
-			AddPool(data);
-		}
-
-		IsInitialized = true;
 	}
 
 	private GameObject CreateInstance (PoolData data) {
