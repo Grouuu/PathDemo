@@ -14,7 +14,6 @@ public class ObstacleController : MonoBehaviour {
 	[SerializeField] private Transform _target;
 	[SerializeField] private Transform _parent;
 	[SerializeField] private bool _ignoreCollision = false;
-	[SerializeField] private ObstacleData[] _obstaclesDataList;
 
 	private BiomeGrid _gridBiome;
 
@@ -24,19 +23,12 @@ public class ObstacleController : MonoBehaviour {
 
 		foreach (GridPoint point in spawnPoints) {
 
-			ObstacleData obstacleData = Array.Find(_obstaclesDataList, data => data.id == point.obstacleId);
-
-			if (obstacleData == null) {
-				Debug.LogWarning($"obstacle data not found (id: {point.obstacleId})");
-				continue;
-			}
-
-			if (!PoolManager.Instance.HasId(obstacleData.pool.id)) {
+			if (!PoolManager.Instance.HasId(point.obstacleData.pool.id)) {
 				// TODO clean old obstacles pools when not available anymore
-				PoolManager.Instance.AddPool(obstacleData.pool);
+				PoolManager.Instance.AddPool(point.obstacleData.pool);
 			}
 
-			ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(obstacleData.pool.id);
+			ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(point.obstacleData.pool.id);
 			body.transform.parent = _parent;
 			body.transform.position = point.position;
 			body.transform.rotation = Quaternion.identity;

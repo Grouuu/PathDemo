@@ -18,28 +18,19 @@ public class BiomeSampler : MonoBehaviour {
 	[HideInInspector] public event OnBiomeSamplerListUpdate OnBiomeSamplerListUpdate;
 	// end EDITOR */
 
-	// CONFIG
-	private BiomeId[,] GRID = new BiomeId[5, 5] {
-		{ BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None },
-		{ BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None },
-		{ BiomeId.Default, BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None },
-		{ BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None },
-		{ BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None, BiomeId.None }
-	};
-	// end CONFIG
-
-	[SerializeField] private int _cellSize = 1; // size of grid cells in unit (one obstacle by cell max)
+	[SerializeField] private int _cellSizeInUnit = 1; // size of grid cells in unit (one obstacle by cell max)
 	[SerializeField] private Vector2Int _biomeTextureSize = new Vector2Int(128, 128); // values should be a multiplier of _sampleSize AND power of 2
 	[SerializeField] private BiomeData[] _biomesDataList;
+	[SerializeField] private ObstacleData[] _obstaclesDataList;
 
-	private readonly int _unitPerPixel = 1; // how many pixel by cell
-	private readonly Vector2Int _startBiomeIndex = new Vector2Int(2, 0); // starting biome
+	private readonly int _unitPerPixel = 1; // how many pixels by cell
+	private readonly Vector2Int _startBiomeIndex = new Vector2Int(2, 0); // starting biome (x and y inverted)
 
-	private Vector2Int _biomeSizeUnit;
+	private Vector2Int _biomeSizeInUnit;
 	private Vector2Int _biomeSizeInCell;
 
 	public int GetCellSize () {
-		return _cellSize;
+		return _cellSizeInUnit;
 	}
 
 	public List<GridPoint> GetCellsPoints (List<Vector2Int> cellsCoords) {
@@ -56,8 +47,8 @@ public class BiomeSampler : MonoBehaviour {
 	}
 
 	private void Awake () {
-		_biomeSizeUnit = _biomeTextureSize * _unitPerPixel;
-		_biomeSizeInCell = _biomeSizeUnit / _cellSize;
+		_biomeSizeInUnit = _biomeTextureSize * _unitPerPixel;
+		_biomeSizeInCell = _biomeSizeInUnit / _cellSizeInUnit;
 	}
 
 	private GridPoint GetPoint (Vector2Int cellCoords) {
@@ -69,12 +60,12 @@ public class BiomeSampler : MonoBehaviour {
 
 		Vector2Int biomeIndex = GetBiomeIndex(cellCoords);
 
-		if (biomeIndex.x < 0 || biomeIndex.x > GRID.GetLength(0) || biomeIndex.y < 0 || biomeIndex.y > GRID.GetLength(1)) {
+		if (biomeIndex.x < 0 || biomeIndex.x > BiomeSamplerConfig.BiomeGrid.GetLength(0) || biomeIndex.y < 0 || biomeIndex.y > BiomeSamplerConfig.BiomeGrid.GetLength(1)) {
 			// out of biomes grid
 			return null;
 		}
 
-		BiomeId biomeId = GRID[biomeIndex.x, biomeIndex.y];
+		BiomeId biomeId = BiomeSamplerConfig.BiomeGrid[biomeIndex.x, biomeIndex.y];
 
 		if (biomeId == BiomeId.None) {
 			// nothing here
@@ -90,7 +81,7 @@ public class BiomeSampler : MonoBehaviour {
 
 		Vector2Int biomeAnchorCellCoords = GetBiomeAnchorCellCoords(biomeIndex);
 		Vector2Int biomeLocalCellCoords = GetBiomeLocalCellCoords(biomeAnchorCellCoords, cellCoords);
-		Vector2Int texturePixelPosition = biomeLocalCellCoords * _cellSize * _unitPerPixel;
+		Vector2Int texturePixelPosition = biomeLocalCellCoords * _cellSizeInUnit * _unitPerPixel;
 		int texturePixelIndex = texturePixelPosition.x + texturePixelPosition.y * _biomeTextureSize.x;
 
 		if (texturePixelIndex < 0 || texturePixelIndex > _biomeTextureSize.x * _biomeTextureSize.y) {
@@ -101,25 +92,28 @@ public class BiomeSampler : MonoBehaviour {
 		var pixels = biomeData.patternData.GetRawTextureData<Color32>();
 		Color32 color = pixels[texturePixelIndex];
 
-		if (color.Equals(Color.black)) {
+		if (color.a == 0) {
 			// nothing here
 			return null;
 		}
 
-		Vector2 worldPosition = cellCoords * _cellSize + Vector2.one * _unitPerPixel / 2;
+		Vector2 worldPosition = cellCoords * _cellSizeInUnit + Vector2.one * _unitPerPixel / 2; // center of the cell
 		GridPoint point = GetGridPoint(cellCoords, worldPosition, color);
 
 		return point;
 	}
 
 	private GridPoint GetGridPoint (Vector2Int cellCoords, Vector2 centerWorldPosition, Color32 data) {
+
+		ObstacleData obstacleData = Array.Find(_obstaclesDataList, entry => entry.mapColor.r == data.r && entry.mapColor.g == data.g && entry.mapColor.b == data.b);
+
+		if (obstacleData == null) {
+			return null;
+		}
+
 		Vector2 position = centerWorldPosition;
-		ObstacleId id = ObstacleId.Default;
-		float sizeFactor = 1;
-
-		// TODO use data to set the point
-
-		return new GridPoint(id, position, cellCoords, sizeFactor);
+		float sizeFactor = (float) data.a / 255 + 0.5f; // [.5, 1.5]
+		return new GridPoint(obstacleData, position, cellCoords, sizeFactor);
 	}
 
 	private Vector2Int GetBiomeIndex (Vector2Int cellCoords) {
@@ -146,7 +140,7 @@ public class BiomeSampler : MonoBehaviour {
 	#if UNITY_EDITOR
 	private void OnValidate () {
 
-		bool isMultiplierOfSampleSize = _biomeTextureSize.x % _cellSize == 0 || _biomeTextureSize.y % _cellSize == 0;
+		bool isMultiplierOfSampleSize = _biomeTextureSize.x % _cellSizeInUnit == 0 || _biomeTextureSize.y % _cellSizeInUnit == 0;
 		bool isPowerOf2 = Utils.IsPowerOfTwo(_biomeTextureSize.x) && Utils.IsPowerOfTwo(_biomeTextureSize.y);
 
 		if (!isMultiplierOfSampleSize || !isPowerOf2) {

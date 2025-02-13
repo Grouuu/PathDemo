@@ -4,6 +4,7 @@ using UnityEngine;
 public class ObstacleData : ScriptableObject {
 
 	public ObstacleId id;
+	public Color32 mapColor;
 	public PoolData pool;
 	public float Radius = 0.5f;
 	public float RadiusGravity = 20f;

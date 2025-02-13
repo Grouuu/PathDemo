@@ -3,7 +3,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-[RequireComponent(typeof(SphereCollider))]
+[RequireComponent(typeof(SphereCollider), typeof(MeshFilter))]
 public class ObstacleBody : MonoBehaviour {
 
 	public float Mass => _data.Mass * _sizeFactor;
@@ -14,7 +14,6 @@ public class ObstacleBody : MonoBehaviour {
 
 	private SphereCollider _collider;
 	private MeshFilter _mesh;
-	private float _defaultScale = 1;
 	private float _sizeFactor = 1;
 
 	public void SetData(ObstacleData data) {
@@ -43,18 +42,12 @@ public class ObstacleBody : MonoBehaviour {
 		if (!_collider) {
 			_collider = GetComponent<SphereCollider>();
 			_mesh = GetComponentInChildren<MeshFilter>();
-			UpdateDefaultScale();
 			UpdateSize();
 		}
 	}
 
-	private void UpdateDefaultScale () {
-		Vector3 radius = _mesh.mesh.bounds.extents;
-		_defaultScale = _data.Radius / Mathf.Max(radius.x, radius.y, radius.z);
-	}
-
 	private void UpdateSize() {
-		float scale = _defaultScale * _sizeFactor;
+		float scale = _sizeFactor;
 		transform.localScale = new Vector3(scale, scale, scale);
 		_collider.transform.localScale = new Vector3(scale, scale, scale);
 	}

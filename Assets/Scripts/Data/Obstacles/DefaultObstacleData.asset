@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: DefaultObstacleData
   m_EditorClassIdentifier: 
   id: 1
+  mapColor:
+    serializedVersion: 2
+    rgba: 255
   pool:
     id: 1
     prefab: {fileID: 2730072025428956595, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}

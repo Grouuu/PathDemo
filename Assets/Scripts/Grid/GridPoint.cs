@@ -7,18 +7,18 @@ public class GridPoint {
 	public event OnPointDestroy OnDestroy;
 	public ObstacleBody body;
 
-	public ObstacleId obstacleId;
+	public ObstacleData obstacleData;
 	public Vector2 position;
 	public Vector2Int cellCoords;
 	public float sizeFactor;
 
 	public GridPoint (
-		ObstacleId obstacleId,
+		ObstacleData obstacleData,
 		Vector2 position,
 		Vector2Int cellCoords,
 		float sizeFactor
 	) {
-		this.obstacleId = obstacleId;
+		this.obstacleData = obstacleData;
 		this.position = position;
 		this.cellCoords = cellCoords;
 		this.sizeFactor = sizeFactor;

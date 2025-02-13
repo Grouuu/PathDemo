@@ -5894,8 +5894,6 @@ MonoBehaviour:
   _target: {fileID: 403915401}
   _parent: {fileID: 732965304}
   _ignoreCollision: 1
-  _obstaclesDataList:
-  - {fileID: 11400000, guid: 0b45c27e300ad4c4fa4b2c75c63fbf4d, type: 2}
 --- !u!114 &1085608141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5908,10 +5906,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35cfda4bc11b523448df45e7cd388766, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cellSize: 1
+  _cellSizeInUnit: 1
   _biomeTextureSize: {x: 128, y: 128}
   _biomesDataList:
   - {fileID: 11400000, guid: e8bdbd83e4f29c549a4d0d53afa67e1d, type: 2}
+  _obstaclesDataList:
+  - {fileID: 11400000, guid: 0b45c27e300ad4c4fa4b2c75c63fbf4d, type: 2}
 --- !u!114 &1085608142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5924,8 +5924,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84fb8c7644054374f82bffbed73253e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gridScaleComparedToTheScene: 2
-  _minCellShiftBeforeUpdate: 1
+  _gridScaleComparedToTheScene: 1.5
+  _minCellShiftBeforeUpdate: 5
 --- !u!1 &1172754274
 GameObject:
   m_ObjectHideFlags: 0
