@@ -29,88 +29,97 @@ public class BiomeSampler : MonoBehaviour {
 	};
 	// end CONFIG
 
-	[SerializeField] private int _sampleUnitSize = 4; // size of grid cells in unit
+	[SerializeField] private int _cellSize = 1; // size of grid cells in unit (one obstacle by cell max)
 	[SerializeField] private Vector2Int _biomeTextureSize = new Vector2Int(128, 128); // values should be a multiplier of _sampleSize AND power of 2
 	[SerializeField] private BiomeData[] _biomesDataList;
 
-	private readonly int _pixelPerUnit = 1; // ratio pixel/unit
+	private readonly int _unitPerPixel = 1; // how many pixel by cell
 	private readonly Vector2Int _startBiomeIndex = new Vector2Int(2, 0); // starting biome
 
 	private Vector2Int _biomeSizeUnit;
 	private Vector2Int _biomeSizeInCell;
 
 	public int GetCellSize () {
-		return _sampleUnitSize;
+		return _cellSize;
 	}
 
 	public List<GridPoint> GetCellsPoints (List<Vector2Int> cellsCoords) {
 		List<GridPoint> points = new List<GridPoint>();
 
 		foreach (Vector2Int coords in cellsCoords) {
-			points.AddRange(GetCellPoints(coords));
+			GridPoint point = GetPoint(coords);
+			if (point != null) {
+				points.Add(point);
+			}
 		}
 
 		return points;
 	}
 
 	private void Awake () {
-		_biomeSizeUnit = _biomeTextureSize * _pixelPerUnit;
-		_biomeSizeInCell = _biomeSizeUnit / _sampleUnitSize;
+		_biomeSizeUnit = _biomeTextureSize * _unitPerPixel;
+		_biomeSizeInCell = _biomeSizeUnit / _cellSize;
 	}
 
-	private List<GridPoint> GetCellPoints (Vector2Int cellCoords) {
-		List<GridPoint> points = new List<GridPoint>();
+	private GridPoint? GetPoint (Vector2Int cellCoords) {
 
 		if (cellCoords.x < 0) {
-			// do not generate points on the left of the start position
-			return points;
+			// do not generate points on the left of the start position (out of biomes grid)
+			return null;
 		}
 
-		//Vector2Int cellCenterPosition = cellCoords * _sampleUnitSize;
 		Vector2Int biomeIndex = GetBiomeIndex(cellCoords);
 
 		if (biomeIndex.x < 0 || biomeIndex.x > GRID.GetLength(0) || biomeIndex.y < 0 || biomeIndex.y > GRID.GetLength(1)) {
 			// out of biomes grid
-			return points;
+			return null;
 		}
 
 		BiomeId biomeId = GRID[biomeIndex.x, biomeIndex.y];
 
 		if (biomeId == BiomeId.None) {
-			return points;
+			// nothing here
+			return null;
 		}
 
 		BiomeData biomeData = Array.Find(_biomesDataList, data => data.Id == biomeId);
 
 		if (biomeData == null) {
 			Debug.LogWarning($"didn't found biome data for {biomeId}");
-			return points;
+			return null;
 		}
 
-		Vector2Int anchorCellCoords = GetBiomeAnchorCellCoords(biomeIndex);
-		Vector2Int biomeLocalCellCoords = GetBiomeLocalCellCoords(anchorCellCoords, cellCoords);
-		Vector2Int startTexturePosition = biomeLocalCellCoords * _sampleUnitSize * _pixelPerUnit;
+		Vector2Int biomeAnchorCellCoords = GetBiomeAnchorCellCoords(biomeIndex);
+		Vector2Int biomeLocalCellCoords = GetBiomeLocalCellCoords(biomeAnchorCellCoords, cellCoords);
+		Vector2Int texturePixelPosition = biomeLocalCellCoords * _cellSize * _unitPerPixel;
+		int texturePixelIndex = texturePixelPosition.x + texturePixelPosition.y * _biomeTextureSize.x;
+
+		if (texturePixelIndex < 0 || texturePixelIndex > _biomeTextureSize.x * _biomeTextureSize.y) {
+			Debug.LogWarning($"attempt to pick outside of the texture bounds (index: {texturePixelIndex}, x: {texturePixelPosition.x}, y: {texturePixelPosition.y}");
+			return null;
+		}
+
 		var pixels = biomeData.patternData.GetRawTextureData<Color32>();
+		Color32 color = pixels[texturePixelIndex];
 
-		for (int y = 0; y < _sampleUnitSize; y++) {
-			for (int x = 0; x < _sampleUnitSize; x++) {
-
-				int pixelIndex = (startTexturePosition.x + x) + (startTexturePosition.y + y) * _biomeTextureSize.x;
-
-				if (pixelIndex < 0 || pixelIndex > _biomeTextureSize.x * _biomeTextureSize.y) {
-					Debug.LogWarning($"attempt to pick outside of the texture bounds (index: {pixelIndex}, x: {x}, y: {y}");
-					continue;
-				}
-
-				Color32 color = pixels[pixelIndex];
-
-				Vector2 worldPosition = cellCoords * _sampleUnitSize + new Vector2(x * _pixelPerUnit, y * _pixelPerUnit);
-
-				//Debug.DrawRectangle(worldPosition + Vector2.up * 0.95f + Vector2.right * 0.05f, Vector2.one * 0.95f, color);
-			}
+		if (color.Equals(Color.black)) {
+			// nothing here
+			return null;
 		}
 
-		return points;
+		Vector2 worldPosition = cellCoords * _cellSize + Vector2.one * _unitPerPixel / 2;
+		GridPoint point = GetGridPoint(cellCoords, worldPosition);
+
+		return point;
+	}
+
+	private GridPoint GetGridPoint (Vector2Int cellCoords, Vector2 centerWorldPosition) {
+		Vector2 position = centerWorldPosition;
+		float reservedDistance = 1;
+		float sizeFactor = 1;
+
+
+		return new GridPoint(position, cellCoords, reservedDistance, sizeFactor);
 	}
 
 	private Vector2Int GetBiomeIndex (Vector2Int cellCoords) {
@@ -137,12 +146,12 @@ public class BiomeSampler : MonoBehaviour {
 	#if UNITY_EDITOR
 	private void OnValidate () {
 
-		bool isMultiplierOfSampleSize = _biomeTextureSize.x % _sampleUnitSize == 0 || _biomeTextureSize.y % _sampleUnitSize == 0;
+		bool isMultiplierOfSampleSize = _biomeTextureSize.x % _cellSize == 0 || _biomeTextureSize.y % _cellSize == 0;
 		bool isPowerOf2 = Utils.IsPowerOfTwo(_biomeTextureSize.x) && Utils.IsPowerOfTwo(_biomeTextureSize.y);
 
 		if (!isMultiplierOfSampleSize || !isPowerOf2) {
 			Debug.LogError(
-				$"Sample size and biome textures size should be a multiplier of the sample size and a power of 2" +
+				$"Sample size and biome textures size should be a multiplier of the sample size and a power of 2 " +
 				$"(is multiplier of sample size: {isMultiplierOfSampleSize}, is power of 2: {isPowerOf2})"
 			);
 		}
