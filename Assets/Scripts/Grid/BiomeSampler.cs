@@ -108,6 +108,7 @@ public class BiomeSampler : MonoBehaviour {
 		ObstacleData obstacleData = Array.Find(_obstaclesDataList, entry => entry.mapColor.r == data.r && entry.mapColor.g == data.g && entry.mapColor.b == data.b);
 
 		if (obstacleData == null) {
+			Debug.LogWarning($"no obstacle data found with color {data.r} {data.g} {data.b}");
 			return null;
 		}
 
