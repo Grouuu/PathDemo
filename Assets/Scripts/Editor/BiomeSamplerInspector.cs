@@ -1,6 +1,6 @@
 using UnityEditor;
 
-[CustomEditor(typeof(BiomeSampler))]
+[CustomEditor(typeof(ChunkSampler))]
 public class BiomeSamplerInspector : Editor {
 
 	public override void OnInspectorGUI () {

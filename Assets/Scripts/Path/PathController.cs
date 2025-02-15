@@ -19,6 +19,9 @@ public class PathController : MonoBehaviour {
 	private float _minLength = 0.01f; // prevent safe break trigger
 
 	// TODO to many points with low velocity (around 1000 points)
+	// => create a bezize line
+	// => check every distanced step the new line point
+	// !> care the line is not wiggling
 
 	public void UpdatePath(
 		Vector3 position,

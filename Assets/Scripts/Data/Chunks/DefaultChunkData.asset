@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2042e259a0cfb742a266b8331c1fefd, type: 3}
-  m_Name: DefaultBiomeData
+  m_Name: DefaultChunkData
   m_EditorClassIdentifier: 
   Id: 1
-  patternData: {fileID: 2800000, guid: 1f99d710ae315744a9664d49d896ba76, type: 3}
-  prefab: {fileID: 8871826295270180800, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}
+  mapColor:
+    serializedVersion: 2
+    rgba: 255
+  prefab: {fileID: 7428696885272600719, guid: 8e2d5c3ce02ea794bae9695a6bb92490, type: 3}

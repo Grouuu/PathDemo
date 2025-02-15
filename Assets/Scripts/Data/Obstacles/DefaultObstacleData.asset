@@ -20,6 +20,6 @@ MonoBehaviour:
     id: 1
     prefab: {fileID: 2730072025428956595, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}
     poolSize: 20
-  Radius: 1
-  RadiusGravity: 5
-  Mass: 5
+  radius: 0.5
+  radiusGravity: 10
+  mass: 5

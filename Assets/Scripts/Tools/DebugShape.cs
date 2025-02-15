@@ -55,9 +55,9 @@ class Debug : UnityEngine.Debug {
 
     public static void DrawRectangle (Rect rect, Color color, float duration = 10) {
         Debug.DrawLine(new Vector3(rect.x, rect.y), new Vector3(rect.x + rect.width, rect.y), color, duration);
-        Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y), new Vector3(rect.x + rect.width, rect.y - rect.height), color, duration);
-        Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y - rect.height), new Vector3(rect.x, rect.y - rect.height), color, duration);
-        Debug.DrawLine(new Vector3(rect.x, rect.y - rect.height), new Vector3(rect.x, rect.y), color, duration);
+        Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y), new Vector3(rect.x + rect.width, rect.y + rect.height), color, duration);
+        Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y + rect.height), new Vector3(rect.x, rect.y + rect.height), color, duration);
+        Debug.DrawLine(new Vector3(rect.x, rect.y + rect.height), new Vector3(rect.x, rect.y), color, duration);
     }
 
     public static void DrawCenteredRectangle (Vector3 position, Vector3 size, Color color, float duration = 10) {

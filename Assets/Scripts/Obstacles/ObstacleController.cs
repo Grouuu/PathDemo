@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public delegate void OnObstaclesUpdate ();
 
-[RequireComponent(typeof(BiomeGrid))]
+[RequireComponent(typeof(ChunkGrid))]
 public class ObstacleController : MonoBehaviour {
 
 	public static ObstacleController Instance { get; private set; }
@@ -15,24 +14,18 @@ public class ObstacleController : MonoBehaviour {
 	[SerializeField] private Transform _parent;
 	[SerializeField] private bool _ignoreCollision = false;
 
-	private BiomeGrid _gridBiome;
+	private ChunkGrid _gridBiome;
 
 	public void UpdateObstacleField() {
 
-		List<GridPoint> spawnPoints = _gridBiome.UpdatePoints(_target.position);
+		List<ChunkGridPoint> spawnPoints = _gridBiome.UpdatePoints(_target.position);
 
-		foreach (GridPoint point in spawnPoints) {
+		foreach (ChunkGridPoint point in spawnPoints) {
 
-			if (!PoolManager.Instance.HasId(point.obstacleData.pool.id)) {
-				// TODO clean old obstacles pools when not available anymore
-				PoolManager.Instance.AddPool(point.obstacleData.pool);
-			}
-
-			ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(point.obstacleData.pool.id);
+			ChunkBody body = Instantiate<ChunkBody>(point.chunkData.prefab);
 			body.transform.parent = _parent;
 			body.transform.position = point.position;
 			body.transform.rotation = Quaternion.identity;
-			body.SetSizefactor(point.sizeFactor);
 
 			point.body = body;
 			point.OnDestroy += DestroyObstacle;
@@ -69,18 +62,18 @@ public class ObstacleController : MonoBehaviour {
 	}
 
 	private void Start () {
-		_gridBiome = GetComponent<BiomeGrid>();
+		_gridBiome = GetComponent<ChunkGrid>();
 	}
 
 	private void Update () {
 		UpdateObstacleField();
 	}
 
-	private void DestroyObstacle (GridPoint point, ObstacleBody body) {
+	private void DestroyObstacle (ChunkGridPoint point, ChunkBody body) {
 		point.OnDestroy -= DestroyObstacle;
 
 		if (body != null) {
-			PoolManager.Instance.FreeInstance(PoolId.Obstacle, body.gameObject);
+			Destroy(body.gameObject);
 		}
 	}
 

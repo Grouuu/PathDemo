@@ -1,5 +1,5 @@
 
-public enum BiomeId {
+public enum ChunkId {
 	None = 0,
 	Default,
 }

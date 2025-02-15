@@ -9,7 +9,7 @@ public class PoolManager: MonoBehaviour {
 	[SerializeField] private Transform _parent;
 
 	private List<PoolData> _pools = new List<PoolData>();
-	private Dictionary<PoolId, Queue<GameObject>> _poolInstances = new Dictionary<PoolId, Queue<GameObject>>();
+	private Dictionary<string, Queue<GameObject>> _poolInstances = new Dictionary<string, Queue<GameObject>>();
 
 	public void AddPool (PoolData data) {
 
@@ -27,7 +27,7 @@ public class PoolManager: MonoBehaviour {
 		_poolInstances.Add(data.id, instances);
 	}
 
-	public T GetInstance<T> (PoolId id) {
+	public T GetInstance<T> (string id) {
 
 		if (!HasId(id)) {
 			throw new Exception($"No ${id} pool id found");
@@ -48,10 +48,10 @@ public class PoolManager: MonoBehaviour {
 		return instance.GetComponent<T>();
 	}
 
-	public void FreeInstance (PoolId id, GameObject instance) {
+	public void FreeInstance (string id, GameObject instance) {
 
 		if (!HasId(id)) {
-			throw new Exception($"No ${id} pool id found");
+			Debug.LogError($"No ${id} pool id found");
 		}
 
 		if (instance != null) {
@@ -61,7 +61,7 @@ public class PoolManager: MonoBehaviour {
 		}
 	}
 
-	public bool HasId (PoolId id) {
+	public bool HasId (string id) {
 		return _pools.Exists((PoolData data) => data.id == id);
 	}
 
@@ -76,7 +76,7 @@ public class PoolManager: MonoBehaviour {
 		return instance;
 	}
 
-	private PoolData GetPoolData (PoolId id) {
+	private PoolData GetPoolData (string id) {
 		return _pools.Find((PoolData data) => data.id == id);
 	}
 }

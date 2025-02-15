@@ -14,6 +14,8 @@ public class StarsParticles : MonoBehaviour {
 	[SerializeField] private float _timeBetweeenUpdate = 1;
 	[SerializeField] private bool _isDebug = false;
 
+	private readonly string _poolId = "Stars";
+
 	private float _timeBeforeUpdate;
 	private Vector2 _sceneSize;
 	private Dictionary<string, ParticleSystem> _boxes = new Dictionary<string, ParticleSystem>();
@@ -59,7 +61,7 @@ public class StarsParticles : MonoBehaviour {
 		}
 
 		Vector2 boxPosition = coords * _sceneSize;
-		ParticleSystem box = PoolManager.Instance.GetInstance<ParticleSystem>(PoolId.Stars);
+		ParticleSystem box = PoolManager.Instance.GetInstance<ParticleSystem>(_poolId);
 		box.transform.parent = _parent;
 		box.transform.position = boxPosition;
 		box.transform.rotation = Quaternion.identity;
@@ -106,7 +108,7 @@ public class StarsParticles : MonoBehaviour {
 		}
 
 		foreach (string key in deleteKeys) {
-			PoolManager.Instance.FreeInstance(PoolId.Stars, _boxes[key].gameObject);
+			PoolManager.Instance.FreeInstance(_poolId, _boxes[key].gameObject);
 			_boxes.Remove(key);
 		}
 	}

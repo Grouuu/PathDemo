@@ -17,7 +17,7 @@ public static class Utils {
 	}
 
 	public static Vector2Int GridIndexToCoords (int index, int maxColumns) {
-		return new Vector2Int(index % maxColumns, (int) index / maxColumns);
+		return new Vector2Int(index % maxColumns, index / maxColumns);
 	}
 
 	public static Vector2Int GetCoordsFromPosition (Vector2 position, float gridSize) {
