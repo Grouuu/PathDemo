@@ -14,8 +14,6 @@ public class PathController : MonoBehaviour {
 	[SerializeField] private float _width = 0.2f;
 	[SerializeField] private bool _ignorePath = false;
 
-	public static PathController Instance { get; private set; }
-
 	private float _minLength = 0.01f; // prevent safe break trigger
 
 	// TODO to many points with low velocity (around 1000 points)
@@ -101,8 +99,12 @@ public class PathController : MonoBehaviour {
 		_lineRenderer.SetPositions(points.ToArray());
 	}
 
-	private void Awake() {
-		Instance = this;
+	private void OnEnable () {
+		PlayerMovement.OnUpdatePath += UpdatePath;
+	}
+
+	private void OnDisable () {
+		PlayerMovement.OnUpdatePath -= UpdatePath;
 	}
 
 }

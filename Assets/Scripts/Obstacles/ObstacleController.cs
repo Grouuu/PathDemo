@@ -6,7 +6,6 @@ public delegate void OnObstaclesUpdate ();
 [RequireComponent(typeof(ChunkGrid))]
 public class ObstacleController : MonoBehaviour {
 
-	public static ObstacleController Instance { get; private set; }
 	public static event OnObstaclesUpdate OnObstaclesUpdate;
 	public static List<ObstacleBody> ObstaclesInstances = new List<ObstacleBody>();
 
@@ -55,10 +54,6 @@ public class ObstacleController : MonoBehaviour {
 		}
 
 		return false;
-	}
-
-	private void Awake() {
-		Instance = this;
 	}
 
 	private void Start () {

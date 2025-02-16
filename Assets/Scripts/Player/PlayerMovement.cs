@@ -1,18 +1,31 @@
+using System;
 using UnityEngine;
+
+public delegate void OnUpdatePath (
+	Vector3 startPosition,
+	Vector3 velocity,
+	Vector3 forward,
+	Func<Vector3, Vector3> getGravity,
+	Func<Vector3, Vector3> getVelocity
+);
+
+public delegate void OnUpdatePlayerPosition (Vector3 position);
 
 /**
  * Require:
  * . GravityController
- * . ObstacleController
- * . PathController
  * . PlayerBody
  */
 public class PlayerMovement : MonoBehaviour {
+
+	public static event OnUpdatePath OnUpdatePath;
+	public static event OnUpdatePlayerPosition OnUpdatePlayerPosition;
 
 	public float ThrustForce => _thrustForce / _thrustPower; // [-1, 1]
 	public Vector3 Velocity => _velocity;
 
 	[SerializeField] private PlayerBody _playerBody;
+	[SerializeField] private GravityController _gravity;
 	[SerializeField] private float _speedMax = 10f;
 	[SerializeField] private float _thrustPower = 5f;
 	[SerializeField] private float _rotatePower = 100f;
@@ -25,6 +38,12 @@ public class PlayerMovement : MonoBehaviour {
 
 	private float _thrustForce = 0;
 	private float _rotateForce = 0;
+	private bool _isCrashed = false;
+
+	public void SetIsCrashed (bool isCrashed) {
+		// TODO implement the caller
+		_isCrashed = isCrashed;
+	}
 
 	private void Update () {
 		_thrustForce = Input.GetAxisRaw("Vertical") * _thrustPower;
@@ -35,8 +54,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	private void FixedUpdate () {
 
-		if (IsCrashed()) {
-			SceneController.Crashed();
+		if (_isCrashed) {
 			return;
 		}
 
@@ -49,15 +67,12 @@ public class PlayerMovement : MonoBehaviour {
 		ApplyTranslation(deltaTime);
 		ApplyVelocitySnap();
 
+		OnUpdatePlayerPosition(_playerBody.position);
+
 		if (_isDebug) {
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _playerBody.forward * 10, Color.blue); // forward
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _velocityDirection * _velocity.magnitude * 20, Color.green); // velocity
 		}
-	}
-
-	private bool IsCrashed () {
-		// TODO check a flag instead (crash system for path + collider crash)
-		return ObstacleController.Instance.IsCrashPosition(_playerBody.position);
 	}
 
 	private void ApplyRotationForce (float deltaTime) {
@@ -94,7 +109,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	private void UpdatePath () {
-		PathController.Instance.UpdatePath(
+		OnUpdatePath(
 			_playerBody.position,
 			_velocity,
 			_playerBody.forward,
@@ -112,7 +127,7 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	private Vector3 GetGravity(Vector3 position) {
-		return GravityController.Instance.GetGravityByPosition(position);
+		return _gravity.GetGravityByPosition(position);
 	}
 
 }

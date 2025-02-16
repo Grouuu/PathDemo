@@ -66,7 +66,11 @@ public class PoolManager: MonoBehaviour {
 	}
 
 	private void Awake () {
-		Instance = this;
+		if (Instance != null && Instance != this) {
+			Destroy(this);
+		} else {
+			Instance = this;
+		}
 	}
 
 	private GameObject CreateInstance (PoolData data) {

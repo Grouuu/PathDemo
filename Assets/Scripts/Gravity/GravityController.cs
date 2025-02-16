@@ -3,10 +3,9 @@ using UnityEngine;
 /**
  * Require:
  * . ObstacleController
+ * . ObstacleBody
  */
 public class GravityController : MonoBehaviour {
-
-	public static GravityController Instance { get; private set; }
 
 	[SerializeField] private float _gravityPower = 0.5f;
 	[SerializeField] private bool _ignoreGravity = false;
@@ -41,14 +40,14 @@ public class GravityController : MonoBehaviour {
 		return gravity;
 	}
 
-	private static float GetGravityForceByDistance (float distance, ObstacleBody body) {
+	private float GetGravityForceByDistance (float distance, ObstacleBody body) {
 		float distanceToSurface = distance - body.Radius;
 		float distanceToSurfaceNormalized = distanceToSurface / (body.RadiusGravity - body.Radius);
 		float easeCoeff = 1 - Mathf.Pow(distanceToSurfaceNormalized, 3); // f(x) = x³
-		return easeCoeff * body.Mass * (Instance?._gravityPower ?? 0.5f);
+		return easeCoeff * body.Mass * _gravityPower;
 	}
 
-	private static Vector3 GetNewtonGravityByPosition (Vector3 movingPosition, Vector3 staticPosition, float staticMass) {
+	private Vector3 GetNewtonGravityByPosition (Vector3 movingPosition, Vector3 staticPosition, float staticMass) {
 		// Newton's law F = G * mM / r² => a = G * M / r²
 		// dot(offset, offset) = sqrMagnitude of offset, |offset|²
 		float G = 667.4f;
@@ -60,7 +59,6 @@ public class GravityController : MonoBehaviour {
 	}
 
 	private void Awake() {
-		Instance = this;
 		ObstacleController.OnObstaclesUpdate += UpdateObstacles;
 	}
 
