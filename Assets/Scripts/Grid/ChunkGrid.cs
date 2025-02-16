@@ -22,7 +22,10 @@ public class ChunkGrid : MonoBehaviour {
 		_forceSpawnUpdate = true;
 	}
 
-	public List<ChunkGridPoint> UpdatePoints (Vector2 targetPosition) {
+	public bool UpdatePoints (Vector2 targetPosition, out List<ChunkGridPoint> spawnPoints) {
+
+		bool obstaclesChanged = false;
+		spawnPoints = new List<ChunkGridPoint>();
 
 		Vector2Int oldCoords = GetCoords(_centerPosition);
 		Vector2Int newCoords = GetCoords(targetPosition);
@@ -30,24 +33,31 @@ public class ChunkGrid : MonoBehaviour {
 		bool enoughShift = Mathf.Abs(coordsShift.x) >= 1 || Mathf.Abs(coordsShift.y) >= 1;
 
 		if (!enoughShift && !_forceSpawnUpdate) {
-			return new List<ChunkGridPoint>();
+			return false;
 		}
 
 		_centerPosition = targetPosition;
 
 		UpdateBoundsCoords();
-		ClearOutOfBoundsPoints();
+
+		if (ClearOutOfBoundsPoints()) {
+			obstaclesChanged = true;
+		}
 
 		List<Vector2Int> newChunks = GetNewChunks(oldCoords, newCoords, _forceSpawnUpdate);
-		List<ChunkGridPoint> spawnPoints = _sampler.GetChunksPoints(newChunks);
+		spawnPoints = _sampler.GetChunksPoints(newChunks);
 
 		foreach (ChunkGridPoint point in spawnPoints) {
 			_points.Add(GetChunkId(point.chunkCoords), point);
 		}
 
+		if (spawnPoints.Count > 0) {
+			obstaclesChanged = true;
+		}
+
 		_forceSpawnUpdate = false;
 
-		return spawnPoints;
+		return obstaclesChanged;
 	}
 
 	private void Awake () {
@@ -89,13 +99,14 @@ public class ChunkGrid : MonoBehaviour {
 		return chunkCoords;
 	}
 
-	private void ClearOutOfBoundsPoints () {
-
+	private bool ClearOutOfBoundsPoints () {
+		bool hasDestroyedPoints = false;
 		List<string> deleteKeys = new List<string>();
 
 		foreach (KeyValuePair<string, ChunkGridPoint> entry in _points) {
 			if (!IsCoordsInBounds(entry.Value.chunkCoords, _boundsCoords)) {
 				deleteKeys.Add(entry.Key);
+				hasDestroyedPoints = true;
 			}
 		}
 
@@ -103,6 +114,8 @@ public class ChunkGrid : MonoBehaviour {
 			_points[key].Destroy();
 			_points.Remove(key);
 		}
+
+		return hasDestroyedPoints;
 	}
 
 	private Vector2Int GetGridCoordsShift (Vector2Int oldCoords, Vector2Int newCoords) {

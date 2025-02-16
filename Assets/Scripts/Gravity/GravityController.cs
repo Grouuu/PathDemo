@@ -25,6 +25,7 @@ public class GravityController : MonoBehaviour {
 		Vector3 gravity = Vector3.zero;
 
 		foreach (ObstacleBody body in _bodies) {
+
 			Vector3 direction = body.transform.position - position;
 			float distance = direction.magnitude;
 			bool inRange = distance <= body.RadiusGravity;

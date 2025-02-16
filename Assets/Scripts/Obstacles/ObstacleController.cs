@@ -17,20 +17,19 @@ public class ObstacleController : MonoBehaviour {
 
 	public void UpdateObstacleField() {
 
-		List<ChunkGridPoint> spawnPoints = _gridBiome.UpdatePoints(_target.position);
+		if (_gridBiome.UpdatePoints(_target.position, out List<ChunkGridPoint> spawnPoints)) {
 
-		foreach (ChunkGridPoint point in spawnPoints) {
+			foreach (ChunkGridPoint point in spawnPoints) {
 
-			ChunkBody body = Instantiate<ChunkBody>(point.chunkData.prefab);
-			body.transform.parent = _parent;
-			body.transform.position = point.position;
-			body.transform.rotation = Quaternion.identity;
+				ChunkBody body = Instantiate<ChunkBody>(point.chunkData.prefab);
+				body.transform.parent = _parent;
+				body.transform.position = point.position;
+				body.transform.rotation = Quaternion.identity;
 
-			point.body = body;
-			point.OnDestroy += DestroyObstacle;
-		}
+				point.body = body;
+				point.OnDestroy += DestroyObstacle;
+			}
 
-		if (spawnPoints.Count != 0) {
 			OnObstaclesUpdate();
 		}
 	}
