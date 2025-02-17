@@ -10,16 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e0c72ebb25248044cb13ff57d89332f1, type: 3}
-  m_Name: DefaultObstacleData
+  m_Name: ObstacleData_Normal_01
   m_EditorClassIdentifier: 
-  id: 1
-  mapColor:
-    serializedVersion: 2
-    rgba: 255
+  id: 3
+  prefab: {fileID: 0}
   pool:
-    id: 1
-    prefab: {fileID: 2730072025428956595, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}
-    poolSize: 20
+    id: Medium_01
+    prefab: {fileID: 2730072025428956595, guid: 66beb40dd97cb134daa8c3510255c3aa, type: 3}
+    poolSize: 80
   radius: 0.5
   radiusGravity: 10
   mass: 5

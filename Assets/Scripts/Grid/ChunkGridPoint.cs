@@ -1,29 +1,29 @@
 using UnityEngine;
 
-public delegate void OnPointDestroy (ChunkGridPoint point, ChunkBody body);
+public class ChunkGridPoint : IGridPoint<ChunkBody> {
 
-public class ChunkGridPoint {
+	public OnGridPointDestroy<ChunkBody> OnDestroy { get; set; }
+	public ChunkBody body { get; set; }
 
-	public event OnPointDestroy OnDestroy;
-	public ChunkBody body;
-
-	public ChunkData chunkData;
-	public Vector2 position;
-	public Vector2Int chunkCoords;
+	public ScriptableObject data { get; set; }
+	public Vector2 position { get; set; }
+	public Vector2Int chunkCoords { get; set; }
+	public float reservedDistance { get; set; }	// not used
+	public float sizeFactor { get; set; }       // not used
+	public bool isRender { get; set; }          // not used
+	public bool isFirst { get; set; }           // not used
 
 	public ChunkGridPoint (
 		ChunkData chunkData,
 		Vector2 position,
 		Vector2Int chunkCoords
 	) {
-		this.chunkData = chunkData;
+		this.data = chunkData;
 		this.position = position;
 		this.chunkCoords = chunkCoords;
 	}
 
 	public void Destroy () {
-		if (OnDestroy != null) {
-			OnDestroy(this, body);
-		}
+		OnDestroy?.Invoke(this, body);
 	}
 }

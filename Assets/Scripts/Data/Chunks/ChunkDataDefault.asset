@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2042e259a0cfb742a266b8331c1fefd, type: 3}
-  m_Name: DefaultChunkData
+  m_Name: ChunkDataDefault
   m_EditorClassIdentifier: 
   Id: 1
   mapColor:

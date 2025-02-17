@@ -1,9 +1,10 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 #endif
 using UnityEngine;
 
-[RequireComponent(typeof(SphereCollider), typeof(MeshFilter))]
+[RequireComponent(typeof(SphereCollider))]
 public class ObstacleBody : MonoBehaviour {
 
 	public float Mass => _data.mass * _sizeFactor;
@@ -13,7 +14,12 @@ public class ObstacleBody : MonoBehaviour {
 	[SerializeField] private ObstacleData _data;
 
 	private SphereCollider _collider;
-	private float _sizeFactor;
+	private float _sizeFactor = 1;
+
+	public void SetSizeFactor (float sizeFactor) {
+		_sizeFactor = sizeFactor;
+		transform.localScale = new Vector3(_sizeFactor, _sizeFactor, _sizeFactor);
+	}
 
 	private void Start () {
 		Init();
@@ -29,7 +35,6 @@ public class ObstacleBody : MonoBehaviour {
 
 	private void Init () {
 		_collider = GetComponent<SphereCollider>();
-		_sizeFactor = transform.localScale.x;
 	}
 
 	#if UNITY_EDITOR

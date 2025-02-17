@@ -2,8 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public delegate void OnObstaclesUpdate ();
+public delegate void OnGridPointDestroy<T> (IGridPoint<T> point, T body);
 
-[RequireComponent(typeof(ChunkGrid))]
+public interface IGridPoint<T> {
+	public OnGridPointDestroy<T> OnDestroy { get; set; }
+	public T body { get; set; }
+	public ScriptableObject data { get; set; }
+	public Vector2 position { get; set; }
+	public Vector2Int chunkCoords { get; set; }
+	public float reservedDistance { get; set; }
+	public float sizeFactor { get; set; }
+	public void Destroy ();
+}
+
+[RequireComponent(typeof(RandomGrid))]
 public class ObstacleController : MonoBehaviour {
 
 	public static event OnObstaclesUpdate OnObstaclesUpdate;
@@ -13,18 +25,26 @@ public class ObstacleController : MonoBehaviour {
 	[SerializeField] private Transform _parent;
 	[SerializeField] private bool _ignoreCollision = false;
 
-	private ChunkGrid _gridBiome;
+	private RandomGrid _grid;
 
 	public void UpdateObstacleField() {
 
-		if (_gridBiome.UpdatePoints(_target.position, out List<ChunkGridPoint> spawnPoints)) {
+		if (_grid.UpdatePoints(_target.position, out List<RandomGridPoint> spawnPoints)) {
 
-			foreach (ChunkGridPoint point in spawnPoints) {
+			foreach (RandomGridPoint point in spawnPoints) {
 
-				ChunkBody body = Instantiate<ChunkBody>(point.chunkData.prefab);
+				ObstacleData data = point.data as ObstacleData;
+
+				if (!PoolManager.Instance.HasId(data.pool.id)) {
+					PoolManager.Instance.AddPool(data.pool);
+				}
+
+				ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(data.pool.id);
+
 				body.transform.parent = _parent;
 				body.transform.position = point.position;
 				body.transform.rotation = Quaternion.identity;
+				body.SetSizeFactor(point.sizeFactor);
 
 				point.body = body;
 				point.OnDestroy += DestroyObstacle;
@@ -56,18 +76,18 @@ public class ObstacleController : MonoBehaviour {
 	}
 
 	private void Start () {
-		_gridBiome = GetComponent<ChunkGrid>();
+		_grid = GetComponent<RandomGrid>();
 	}
 
 	private void Update () {
 		UpdateObstacleField();
 	}
 
-	private void DestroyObstacle (ChunkGridPoint point, ChunkBody body) {
+	private void DestroyObstacle (IGridPoint<ObstacleBody> point, ObstacleBody body) {
 		point.OnDestroy -= DestroyObstacle;
 
 		if (body != null) {
-			Destroy(body.gameObject);
+			PoolManager.Instance.FreeInstance((point.data as ObstacleData).pool.id, body.gameObject);
 		}
 	}
 

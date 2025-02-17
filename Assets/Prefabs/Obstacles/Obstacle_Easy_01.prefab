@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 8829194749038684599}
   - component: {fileID: 8871826295270180800}
   m_Layer: 0
-  m_Name: ObstacleDefault
+  m_Name: Obstacle_Easy_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,4 +153,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 733cc0afb845d6b498da6a6ccf554363, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data: {fileID: 11400000, guid: 0b45c27e300ad4c4fa4b2c75c63fbf4d, type: 2}
+  _data: {fileID: 11400000, guid: fb8591d46bdeb85458525418d27af580, type: 2}
