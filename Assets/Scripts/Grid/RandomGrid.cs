@@ -9,11 +9,11 @@ using UnityEngine;
 [RequireComponent(typeof(RandomSampler))]
 public class RandomGrid : MonoBehaviour {
 
-	[SerializeField] private int _cellSize = 1;
-	[SerializeField] private float _minDistance = 3;
-	[SerializeField] private float _startDistance = 5;
-	[SerializeField] private float _gridScaleFromView = 2;
-	[SerializeField] private float _numSamplesBeforeRejection = 30;
+	[SerializeField] private int _cellSize = 1;						// unit size for each cell (one obstacle by cell max)
+	[SerializeField] private float _startMinDistance = 3;			// min distance between obstacles at start
+	[SerializeField] private float _spawnReservedDistance = 15;		// more than max neighbors radius gravity to have a spawn safe from gravity
+	[SerializeField] private float _gridScaleFromView = 2;			// how many time the grid is bigger than the screen
+	[SerializeField] private float _numSamplesBeforeRejection = 30;	// number of times we try to pick a new point around an old one
 	[SerializeField] private bool _isDebug = false;
 
 	private Dictionary<string, RandomGridPoint> _points = new Dictionary<string, RandomGridPoint>();
@@ -22,8 +22,10 @@ public class RandomGrid : MonoBehaviour {
 	private Vector2 _centerPosition;
 	private Vector2Int _centerCoords;
 	private Vector4 _bounds;
+	private float _minDistance;
 	private Vector2 _halfGridSize;
 	private int _minShiftBeforeUpdate => Mathf.CeilToInt(_minDistance * 2 / _cellSize);
+	private float _maxReservedDistance;
 
 	public void SetMinDistance (float minDistance) {
 		_minDistance = minDistance;
@@ -65,6 +67,7 @@ public class RandomGrid : MonoBehaviour {
 	private void Start () {
 		_gridSizeInCell = Vector2Int.CeilToInt(Utils.GetSceneSize() / _cellSize * _gridScaleFromView);
 		_halfGridSize = _gridSizeInCell / 2;
+		_minDistance = _startMinDistance;
 	}
 
 	private bool IsUpdateAllowed () {
@@ -102,7 +105,9 @@ public class RandomGrid : MonoBehaviour {
 
 		List<RandomGridPoint> points = new List<RandomGridPoint>();
 		Vector2Int gridShiftDirection = GetGridShift(oldCoords, _centerCoords);
-		List<RandomGridPoint> spawnPoints = GetSeedPoint(oldBounds, gridShiftDirection);
+		List<RandomGridPoint> spawnPoints = GetSeedPoints(oldBounds, gridShiftDirection);
+
+		UpdateMaxReservedDistance();
 
 		int debugCount = 0;
 
@@ -144,6 +149,8 @@ public class RandomGrid : MonoBehaviour {
 				spawnPoints.RemoveAt(spawnIndex);
 			}
 
+			UpdateMaxReservedDistance();
+
 			safeBreakCount++;
 			if (safeBreakCount >= 10000) {
 				Debug.Log("Infinite spawn points loop suspected");
@@ -169,8 +176,23 @@ public class RandomGrid : MonoBehaviour {
 		Vector2Int coords = GetCoordsFromPosition(position);
 		string id = GetCellId(coords);
 		RandomGridPoint point = new RandomGridPoint(data, position, coords, reservedDistance, factor, isRender, isFirst);
+
+		// DEBUG
+		if (_points.ContainsKey(id)) {
+			Debug.LogWarning("ALREADY FILLED");
+			Utils.PauseEditor();
+		}
+
 		_points.Add(id, point);
+
 		return point;
+	}
+
+	private void UpdateMaxReservedDistance () {
+		_maxReservedDistance = 0;
+		foreach (RandomGridPoint point in _points.Values) {
+			_maxReservedDistance = Mathf.Max(_maxReservedDistance, point.reservedDistance);
+		}
 	}
 
 	private bool IsInNewBounds (Vector2 position, Vector4 oldBounds, Vector4 newBounds) {
@@ -188,6 +210,8 @@ public class RandomGrid : MonoBehaviour {
 
 	private bool IsValidPoint (Vector2 candidatePosition, float reservedDistance, Vector2Int shiftDirection) {
 
+		// NOTE: the check against the spawn point reserved distance doesn't take account of the gravity radius, so use margin to preserve spawn position from gravity
+
 		Vector2Int candidateCoords = GetCoordsFromPosition(candidatePosition);
 
 		if (_points.ContainsKey(GetCellId(candidateCoords))) {
@@ -195,7 +219,7 @@ public class RandomGrid : MonoBehaviour {
 			return false;
 		}
 
-		int range = Mathf.CeilToInt(reservedDistance / _cellSize);
+		int range = Mathf.CeilToInt(_maxReservedDistance / _cellSize);
 		int startX = candidateCoords.x - range;
 		int endX = candidateCoords.x + range;
 		int startY = candidateCoords.y - range;
@@ -252,7 +276,7 @@ public class RandomGrid : MonoBehaviour {
 		);
 	}
 
-	private List<RandomGridPoint> GetSeedPoint (Vector4 bounds, Vector2Int shift) {
+	private List<RandomGridPoint> GetSeedPoints (Vector4 bounds, Vector2Int shift) {
 
 		// points added to the grid but not to the scene
 		List<RandomGridPoint> seedPoints = new List<RandomGridPoint>();
@@ -260,7 +284,7 @@ public class RandomGrid : MonoBehaviour {
 		// at start
 		if (bounds == Vector4.zero) {
 			// force empty space around the player at start
-			seedPoints.Add(AddPoint(null, _centerPosition, _startDistance, 1, false, true));
+			seedPoints.Add(AddPoint(null, _centerPosition, _spawnReservedDistance, 1, false, true));
 			return seedPoints;
 		}
 
@@ -268,7 +292,8 @@ public class RandomGrid : MonoBehaviour {
 		float shiftHeight = Mathf.Abs(shift.y * _cellSize);
 
 		Action<Vector2> addSeedPoint = seedPosition => {
-			if (seedPosition != Vector2.zero) {
+			Vector2Int seedCoords = GetCoordsFromPosition(seedPosition);
+			if (seedPosition != Vector2.zero && !_points.ContainsKey(GetCellId(seedCoords))) {
 				// add blank seed points aligned to the center xy axis in the middle of the new areas
 				seedPoints.Add(AddPoint(null, seedPosition, 0, 1, false));
 			}

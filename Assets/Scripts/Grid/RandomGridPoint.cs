@@ -7,7 +7,7 @@ public class RandomGridPoint : IGridPoint<ObstacleBody> {
 
 	public ScriptableObject data { get; set; }
 	public Vector2 position { get; set; }
-	public Vector2Int chunkCoords { get; set; }
+	public Vector2Int coords { get; set; }
 	public float reservedDistance { get; set; }
 	public float sizeFactor { get; set; }
 	public bool isRender { get; set; }
@@ -24,7 +24,7 @@ public class RandomGridPoint : IGridPoint<ObstacleBody> {
 	) {
 		this.data = data;
 		this.position = position;
-		this.chunkCoords = chunkCoords;
+		this.coords = chunkCoords;
 		this.reservedDistance = reservedDistance;
 		this.sizeFactor = sizeFactor;
 		this.isRender = isRender;

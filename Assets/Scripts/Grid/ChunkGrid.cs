@@ -48,7 +48,7 @@ public class ChunkGrid : MonoBehaviour {
 		spawnPoints = _sampler.GetChunksPoints(newChunks);
 
 		foreach (ChunkGridPoint point in spawnPoints) {
-			_points.Add(GetChunkId(point.chunkCoords), point);
+			_points.Add(GetChunkId(point.coords), point);
 		}
 
 		if (spawnPoints.Count > 0) {
@@ -104,7 +104,7 @@ public class ChunkGrid : MonoBehaviour {
 		List<string> deleteKeys = new List<string>();
 
 		foreach (KeyValuePair<string, ChunkGridPoint> entry in _points) {
-			if (!IsCoordsInBounds(entry.Value.chunkCoords, _boundsCoords)) {
+			if (!IsCoordsInBounds(entry.Value.coords, _boundsCoords)) {
 				deleteKeys.Add(entry.Key);
 				hasDestroyedPoints = true;
 			}

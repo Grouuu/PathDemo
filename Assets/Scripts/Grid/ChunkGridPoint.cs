@@ -7,7 +7,7 @@ public class ChunkGridPoint : IGridPoint<ChunkBody> {
 
 	public ScriptableObject data { get; set; }
 	public Vector2 position { get; set; }
-	public Vector2Int chunkCoords { get; set; }
+	public Vector2Int coords { get; set; }
 	public float reservedDistance { get; set; }	// not used
 	public float sizeFactor { get; set; }       // not used
 	public bool isRender { get; set; }          // not used
@@ -20,7 +20,7 @@ public class ChunkGridPoint : IGridPoint<ChunkBody> {
 	) {
 		this.data = chunkData;
 		this.position = position;
-		this.chunkCoords = chunkCoords;
+		this.coords = chunkCoords;
 	}
 
 	public void Destroy () {

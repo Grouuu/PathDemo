@@ -9,7 +9,7 @@ public interface IGridPoint<T> {
 	public T body { get; set; }
 	public ScriptableObject data { get; set; }
 	public Vector2 position { get; set; }
-	public Vector2Int chunkCoords { get; set; }
+	public Vector2Int coords { get; set; }
 	public float reservedDistance { get; set; }
 	public float sizeFactor { get; set; }
 	public void Destroy ();
