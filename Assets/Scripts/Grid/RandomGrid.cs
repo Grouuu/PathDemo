@@ -177,12 +177,6 @@ public class RandomGrid : MonoBehaviour {
 		string id = GetCellId(coords);
 		RandomGridPoint point = new RandomGridPoint(data, position, coords, reservedDistance, factor, isRender, isFirst);
 
-		// DEBUG
-		if (_points.ContainsKey(id)) {
-			Debug.LogWarning("ALREADY FILLED");
-			Utils.PauseEditor();
-		}
-
 		_points.Add(id, point);
 
 		return point;
