@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/**
- * Require:
+/*
+ * Dependencies:
  * . ObstacleBody
  */
-public class PathController : MonoBehaviour {
-
+public class PathController : MonoBehaviour
+{
 	[SerializeField] private LineRenderer _lineRenderer;
 	[SerializeField] private int _length = 10;
 	[SerializeField] private int _steps = 100;
@@ -27,8 +27,10 @@ public class PathController : MonoBehaviour {
 		Vector3 forward,
 		Func<Vector3, Vector3> getGravity,
 		Func<Vector3, Vector3> getTranslation
-	) {
-		if (_ignorePath) {
+	)
+	{
+		if (_ignorePath)
+		{
 			return;
 		}
 
@@ -40,14 +42,17 @@ public class PathController : MonoBehaviour {
 		bool isEnd = false;
 		int safeBreakCount = 0;
 
-		while (currentLength < _length) {
-
+		while (currentLength < _length)
+		{
 			Vector3 gravityVelocity = getGravity(position) * deltaTime;
+
 			velocity += gravityVelocity;
+
 			Vector3 translation = getTranslation(velocity) * deltaTime;
 			float lengthAdded = translation.magnitude;
 
-			if (lengthAdded < _minLength) {
+			if (lengthAdded < _minLength)
+			{
 				translation = forward * _minLength;
 				lengthAdded = _minLength;
 			}
@@ -55,17 +60,17 @@ public class PathController : MonoBehaviour {
 			currentLength += lengthAdded;
 
 			// end of the path
-			if (currentLength > _length) {
+			if (currentLength > _length)
+			{
 				isEnd = true;
 				lengthAdded = currentLength - _length;
 				translation = translation.normalized * lengthAdded;
 				currentLength = _length;
 			}
 
-			RaycastHit hit;
-
-			if (Physics.Raycast(position, translation.normalized, out hit, translation.magnitude) && hit.collider.GetComponent<ObstacleBody>()) {
-				// crash
+			if (Physics.Raycast(position, translation.normalized, out RaycastHit hit, translation.magnitude) && hit.collider.GetComponent<ObstacleBody>())
+			{
+				// crash point
 				points.Add(hit.point);
 				break;
 			}
@@ -74,12 +79,14 @@ public class PathController : MonoBehaviour {
 
 			float threshold = points.Count * stepLength;
 
-			if (currentLength > threshold || isEnd) {
+			if (currentLength > threshold || isEnd)
+			{
 				points.Add(position);
 			}
 
 			safeBreakCount++;
-			if (safeBreakCount > 10000) {
+			if (safeBreakCount > 1000)
+			{
 				Debug.Log("Infinite path loop suspected");
 				break;
 			}
@@ -99,11 +106,13 @@ public class PathController : MonoBehaviour {
 		_lineRenderer.SetPositions(points.ToArray());
 	}
 
-	private void OnEnable () {
+	private void OnEnable ()
+	{
 		PlayerMovement.OnUpdatePath += UpdatePath;
 	}
 
-	private void OnDisable () {
+	private void OnDisable ()
+	{
 		PlayerMovement.OnUpdatePath -= UpdatePath;
 	}
 

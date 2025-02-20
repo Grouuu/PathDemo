@@ -13,13 +13,10 @@ MonoBehaviour:
   m_Name: ObstacleDataDefault
   m_EditorClassIdentifier: 
   id: 1
-  mapColor:
-    serializedVersion: 2
-    rgba: 255
   pool:
-    id: 1
+    id: obstacle_Default
     prefab: {fileID: 2730072025428956595, guid: 41dee8dd38362ef4db9f1f7fe362ec6a, type: 3}
-    poolSize: 20
+    poolSize: 1
   radius: 0.5
   radiusGravity: 10
   mass: 5

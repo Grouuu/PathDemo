@@ -1,15 +1,20 @@
 using UnityEngine;
 
-public class FirewallController : MonoBehaviour {
-
+/*
+ * Dependencies:
+ * . FirewallBody
+ */
+public class FirewallController : MonoBehaviour
+{
 	[SerializeField] private Transform _firewall;
 	[SerializeField] private FirewallBody _firewallBody;
 	[SerializeField] private float _speed = 1;
 	[SerializeField] private bool _isDisabled = false;
 
-	private void Update () {
-
-		if (_isDisabled) {
+	private void Update ()
+	{
+		if (_isDisabled)
+		{
 			return;
 		}
 

@@ -1,8 +1,0 @@
-<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <engine:VisualElement name="HorizontalLayout" style="flex-grow: 1; flex-direction: row;">
-        <engine:VisualElement name="Biomes" style="flex-grow: 1; width: 100px; height: 100%; min-height: 100%; align-self: stretch; flex-direction: column;">
-            <engine:ListView name="ListBiomes" show-foldout-header="false" show-border="true" style="height: 100%; width: 100%; max-height: none; max-width: none; min-height: auto; min-width: auto; position: relative; left: auto; top: auto;" />
-        </engine:VisualElement>
-        <engine:ScrollView name="Grid" style="height: 100%; left: auto; top: auto; width: 100%; align-self: auto; position: relative; right: auto; max-width: none; flex-basis: auto;" />
-    </engine:VisualElement>
-</engine:UXML>

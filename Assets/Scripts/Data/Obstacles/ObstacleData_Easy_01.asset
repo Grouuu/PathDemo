@@ -13,11 +13,10 @@ MonoBehaviour:
   m_Name: ObstacleData_Easy_01
   m_EditorClassIdentifier: 
   id: 2
-  prefab: {fileID: 0}
   pool:
-    id: Easy_01
+    id: obstacle_Easy_01
     prefab: {fileID: 2730072025428956595, guid: 14f679d1c2774d34a9656b95222deb33, type: 3}
-    poolSize: 70
+    poolSize: 1
   radius: 0.5
   radiusGravity: 10
   mass: 5

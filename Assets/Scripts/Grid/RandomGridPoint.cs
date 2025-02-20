@@ -1,27 +1,36 @@
 using UnityEngine;
 
-public class RandomGridPoint : IGridPoint<ObstacleBody> {
+public delegate void OnGridPointDestroy (RandomGridPoint point);
 
-	public OnGridPointDestroy<ObstacleBody> OnDestroy { get; set; }
-	public ObstacleBody body { get; set; }
+/*
+ * Dependencies:
+ * . ObstacleBody
+ * . ObstacleData
+ */
+public class RandomGridPoint
+{
+	public event OnGridPointDestroy OnDestroy;
 
-	public ScriptableObject data { get; set; }
-	public Vector2 position { get; set; }
-	public Vector2Int coords { get; set; }
-	public float reservedDistance { get; set; }
-	public float sizeFactor { get; set; }
-	public bool isRender { get; set; }
-	public bool isFirst { get; set; }
+	public ObstacleBody body;
+
+	public ObstacleData data;
+	public Vector2 position;
+	public Vector2Int coords;
+	public float reservedDistance;
+	public float sizeFactor;
+	public bool isRender;
+	public bool isFirst;
 
 	public RandomGridPoint (
-		ScriptableObject data,
+		ObstacleData data,
 		Vector2 position,
 		Vector2Int chunkCoords,
 		float reservedDistance,
 		float sizeFactor,
-		bool isRender,
-		bool isFirst
-	) {
+		bool isRender = true,
+		bool isFirst = false
+	)
+	{
 		this.data = data;
 		this.position = position;
 		this.coords = chunkCoords;
@@ -31,7 +40,8 @@ public class RandomGridPoint : IGridPoint<ObstacleBody> {
 		this.isFirst = isFirst;
 	}
 
-	public void Destroy () {
-		OnDestroy?.Invoke(this, body);
+	public void Destroy ()
+	{
+		OnDestroy?.Invoke(this);
 	}
 }

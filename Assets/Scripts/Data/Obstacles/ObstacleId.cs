@@ -1,5 +1,6 @@
 
-public enum ObstacleId {
+public enum ObstacleId
+{
 	None = 0,
 	Default,
 	Easy_01,

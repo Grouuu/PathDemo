@@ -8,21 +8,24 @@ public delegate void OnUpdatePath (
 	Func<Vector3, Vector3> getGravity,
 	Func<Vector3, Vector3> getVelocity
 );
-
 public delegate void OnUpdatePlayerPosition (Vector3 position);
+public delegate void OnUpdatePlayerVelocity (Vector3 velocity);
+public delegate void OnUpdatePlayerThrust (float thrustForce);
 
-/**
- * Require:
+/*
+ * Dependencies:
  * . GravityController
  * . PlayerBody
  */
-public class PlayerMovement : MonoBehaviour {
-
+public class PlayerMovement : MonoBehaviour
+{
 	public static event OnUpdatePath OnUpdatePath;
 	public static event OnUpdatePlayerPosition OnUpdatePlayerPosition;
+	public static event OnUpdatePlayerVelocity OnUpdatePlayerVelocity;
+	public static event OnUpdatePlayerThrust OnUpdatePlayerThrust;
 
-	public float ThrustForce => _thrustForce / _thrustPower; // [-1, 1]
-	public Vector3 Velocity => _velocity;
+	public float thrustForce => _thrustForce / _thrustPower; // [-1, 1]
+	public Vector3 velocity => _velocity;
 
 	[SerializeField] private PlayerBody _playerBody;
 	[SerializeField] private GravityController _gravity;
@@ -40,21 +43,24 @@ public class PlayerMovement : MonoBehaviour {
 	private float _rotateForce = 0;
 	private bool _isCrashed = false;
 
-	public void SetIsCrashed (bool isCrashed) {
+	public void SetIsCrashed (bool isCrashed)
+	{
 		// TODO implement the caller
 		_isCrashed = isCrashed;
 	}
 
-	private void Update () {
+	private void Update ()
+	{
 		_thrustForce = Input.GetAxisRaw("Vertical") * _thrustPower;
 		_rotateForce = -Input.GetAxisRaw("Horizontal") * _rotatePower;
 
 		UpdatePath();
 	}
 
-	private void FixedUpdate () {
-
-		if (_isCrashed) {
+	private void FixedUpdate ()
+	{
+		if (_isCrashed)
+		{
 			return;
 		}
 
@@ -67,40 +73,50 @@ public class PlayerMovement : MonoBehaviour {
 		ApplyTranslation(deltaTime);
 		ApplyVelocitySnap();
 
-		OnUpdatePlayerPosition(_playerBody.position);
+		OnUpdatePlayerPosition?.Invoke(_playerBody.position);
+		OnUpdatePlayerVelocity?.Invoke(_velocity);
+		OnUpdatePlayerThrust?.Invoke(thrustForce);
 
-		if (_isDebug) {
+		if (_isDebug)
+		{
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _playerBody.forward * 10, Color.blue); // forward
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _velocityDirection * _velocity.magnitude * 20, Color.green); // velocity
 		}
 	}
 
-	private void ApplyRotationForce (float deltaTime) {
+	private void ApplyRotationForce (float deltaTime)
+	{
 		Quaternion rotation = Quaternion.AngleAxis(_rotateForce * deltaTime, _playerBody.up);
 		_playerBody.Rotate(rotation);
 
-		if (_velocity != Vector3.zero) {
+		if (_velocity != Vector3.zero)
+		{
 			_velocity = rotation * _velocity;
 		}
 	}
 
-	private void ApplyAccelerationForce (float deltaTime) {
+	private void ApplyAccelerationForce (float deltaTime)
+	{
 		Vector3 acceleration = _playerBody.forward * _thrustForce * deltaTime;
 		_velocity += acceleration;
 	}
 
-	private void ApplyGravityForce (float deltaTime) {
+	private void ApplyGravityForce (float deltaTime)
+	{
 		Vector3 gravityForce = GetGravity(_playerBody.position) * deltaTime;
 		_velocity += gravityForce;
 	}
 
-	private void ApplyTranslation (float deltaTime) {
+	private void ApplyTranslation (float deltaTime)
+	{
 		Vector3 translation = _velocity * deltaTime;
 		_playerBody.Translate(translation);
 	}
 
-	private void ApplyVelocitySnap () {
-		if (_isSnapVelocity && _velocity != Vector3.zero && _rotateForce == 0 && _thrustForce == 0) {
+	private void ApplyVelocitySnap ()
+	{
+		if (_isSnapVelocity && _velocity != Vector3.zero && _rotateForce == 0 && _thrustForce == 0)
+		{
 			// face the velocity
 			float deltaAngle = Vector3.SignedAngle(_playerBody.forward, _velocityDirection, _playerBody.up);
 			Quaternion rotationVelocity = Quaternion.AngleAxis(deltaAngle * _velocitySnapPower, _playerBody.up);
@@ -108,7 +124,8 @@ public class PlayerMovement : MonoBehaviour {
 		}
 	}
 
-	private void UpdatePath () {
+	private void UpdatePath ()
+	{
 		OnUpdatePath(
 			_playerBody.position,
 			_velocity,
@@ -118,15 +135,18 @@ public class PlayerMovement : MonoBehaviour {
 		);
 	}
 
-	private void ClampVelocity () {
+	private void ClampVelocity ()
+	{
 		_velocity = GetClampedVelocity(_velocity);
 	}
 
-	private Vector3 GetClampedVelocity(Vector3 velocity) {
+	private Vector3 GetClampedVelocity(Vector3 velocity)
+	{
 		return Vector3.ClampMagnitude(velocity, _speedMax);
 	}
 
-	private Vector3 GetGravity(Vector3 position) {
+	private Vector3 GetGravity(Vector3 position)
+	{
 		return _gravity.GetGravityByPosition(position);
 	}
 

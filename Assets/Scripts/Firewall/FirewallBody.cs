@@ -2,14 +2,20 @@ using UnityEngine;
 
 public delegate void OnFirewallCrash ();
 
-public class FirewallBody : MonoBehaviour {
+/*
+ * Dependencies:
+ * . PlayerBody
+ */
+[RequireComponent (typeof(Collider))]
+public class FirewallBody : MonoBehaviour
+{
+	public static event OnFirewallCrash OnFirewallCrash;
 
-	public static OnFirewallCrash OnFirewallCrash;
-
-	private void OnTriggerEnter (Collider other) {
-
-		if (other.gameObject.GetComponent<PlayerBody>()) {
-			OnFirewallCrash();
+	private void OnTriggerEnter (Collider other)
+	{
+		if (other.gameObject.GetComponent<PlayerBody>())
+		{
+			OnFirewallCrash?.Invoke();
 		}
 	}
 

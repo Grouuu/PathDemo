@@ -2,22 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public delegate void OnObstaclesUpdate ();
-public delegate void OnGridPointDestroy<T> (IGridPoint<T> point, T body);
 
-public interface IGridPoint<T> {
-	public OnGridPointDestroy<T> OnDestroy { get; set; }
-	public T body { get; set; }
-	public ScriptableObject data { get; set; }
-	public Vector2 position { get; set; }
-	public Vector2Int coords { get; set; }
-	public float reservedDistance { get; set; }
-	public float sizeFactor { get; set; }
-	public void Destroy ();
-}
-
+/*
+ * Dependencies:
+ * . ObstacleBody
+ * . RandomGrid
+ * . RandomGridPoint
+ * . PoolManager
+ */
 [RequireComponent(typeof(RandomGrid))]
-public class ObstacleController : MonoBehaviour {
-
+public class ObstacleController : MonoBehaviour
+{
 	public static event OnObstaclesUpdate OnObstaclesUpdate;
 	public static List<ObstacleBody> ObstaclesInstances = new List<ObstacleBody>();
 
@@ -27,19 +22,20 @@ public class ObstacleController : MonoBehaviour {
 
 	private RandomGrid _grid;
 
-	public void UpdateObstacleField() {
+	public void UpdateObstacleField()
+	{
+		if (_grid.UpdatePoints(_target.position, out List<RandomGridPoint> spawnPoints))
+		{
+			foreach (RandomGridPoint point in spawnPoints)
+			{
+				PoolData pool = point.data.pool;
 
-		if (_grid.UpdatePoints(_target.position, out List<RandomGridPoint> spawnPoints)) {
-
-			foreach (RandomGridPoint point in spawnPoints) {
-
-				ObstacleData data = point.data as ObstacleData;
-
-				if (!PoolManager.Instance.HasId(data.pool.id)) {
-					PoolManager.Instance.AddPool(data.pool);
+				if (!PoolManager.Instance.HasId(pool.id))
+				{
+					PoolManager.Instance.AddPool(pool);
 				}
 
-				ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(data.pool.id);
+				ObstacleBody body = PoolManager.Instance.GetInstance<ObstacleBody>(pool.id);
 
 				body.transform.parent = _parent;
 				body.transform.position = point.position;
@@ -50,24 +46,28 @@ public class ObstacleController : MonoBehaviour {
 				point.OnDestroy += DestroyObstacle;
 			}
 
-			OnObstaclesUpdate();
+			OnObstaclesUpdate?.Invoke();
 		}
 	}
 
-	public bool IsCrashPosition(Vector3 position) {
-
-		if (_ignoreCollision) {
+	public bool IsCrashPosition(Vector3 position)
+	{
+		if (_ignoreCollision)
+		{
 			return false;
 		}
 
-		if (ObstaclesInstances == null || ObstaclesInstances.Count == 0) {
+		if (ObstaclesInstances == null || ObstaclesInstances.Count == 0)
+		{
 			return false;
 		}
 
-		foreach (ObstacleBody body in ObstaclesInstances) {
+		foreach (ObstacleBody body in ObstaclesInstances)
+		{
 			float sqrDistance = (body.transform.position - position).sqrMagnitude;
 
-			if (sqrDistance <= body.Radius * body.Radius) {
+			if (sqrDistance <= body.Radius * body.Radius)
+			{
 				return true;
 			}
 		}
@@ -75,19 +75,23 @@ public class ObstacleController : MonoBehaviour {
 		return false;
 	}
 
-	private void Start () {
+	private void Start ()
+	{
 		_grid = GetComponent<RandomGrid>();
 	}
 
-	private void Update () {
+	private void Update ()
+	{
 		UpdateObstacleField();
 	}
 
-	private void DestroyObstacle (IGridPoint<ObstacleBody> point, ObstacleBody body) {
+	private void DestroyObstacle (RandomGridPoint point)
+	{
 		point.OnDestroy -= DestroyObstacle;
 
-		if (body != null) {
-			PoolManager.Instance.FreeInstance((point.data as ObstacleData).pool.id, body.gameObject);
+		if (point.body != null)
+		{
+			PoolManager.Instance.FreeInstance(point.data.pool.id, point.body.gameObject);
 		}
 	}
 
