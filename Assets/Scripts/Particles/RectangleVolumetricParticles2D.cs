@@ -28,13 +28,15 @@ public class RectangleVolumetricParticles2D : MonoBehaviour
 	{
 		_particles = new Particle[_totalParticles];
 
-		_bounds = GetBounds(); // TODO update when screen size change
+		UpdateBounds();
 
 		ConfigParticlesSystem();
 	}
 
 	private void Update ()
 	{
+		UpdateBounds();
+
 		int particleCount = _particleSystem.GetParticles(_particles);
 
 		for (int i = 0; i < particleCount; i++)
@@ -48,6 +50,11 @@ public class RectangleVolumetricParticles2D : MonoBehaviour
 		}
 
 		_particleSystem.SetParticles(_particles, particleCount);
+	}
+
+	private void UpdateBounds ()
+	{
+		_bounds = Utils.GetSceneBounds(_target.position, Vector2.one * _scaleRelatedToScene);
 	}
 
 	private void ConfigParticlesSystem ()
@@ -107,11 +114,6 @@ public class RectangleVolumetricParticles2D : MonoBehaviour
 		}
 
 		return offset;
-	}
-
-	private Bounds GetBounds ()
-	{
-		return Utils.GetSceneBounds(_target.position, Vector2.one * _scaleRelatedToScene);
 	}
 
 #if UNITY_EDITOR
