@@ -5031,8 +5031,9 @@ MonoBehaviour:
   _id: Dust
   _particleSystem: {fileID: 172850209}
   _target: {fileID: 403915401}
-  _totalParticles: 100
-  _scaleRelatedToScene: 2
+  _totalParticles: 1000
+  _scaleRelatedToScene: 1.5
+  _isDebug: 1
 --- !u!114 &22888075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5049,7 +5050,8 @@ MonoBehaviour:
   _particleSystem: {fileID: 1244575391}
   _target: {fileID: 403915401}
   _totalParticles: 100
-  _scaleRelatedToScene: 2
+  _scaleRelatedToScene: 1.5
+  _isDebug: 0
 --- !u!1 &34748720
 GameObject:
   m_ObjectHideFlags: 0
@@ -5213,7 +5215,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 172850206}
   serializedVersion: 8
-  lengthInSec: 100000
+  lengthInSec: 0.05
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -5393,9 +5395,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startColor:
       serializedVersion: 2
-      minMaxState: 0
-      minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      minMaxState: 2
+      minColor: {r: 1, g: 0.430345, b: 0.3726415, a: 1}
+      maxColor: {r: 0.6320754, g: 0.43086985, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5458,9 +5460,9 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     startSize:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0.1
-      minScalar: 1
+      minScalar: 0.05
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -5511,7 +5513,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -5564,7 +5566,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -5844,7 +5846,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 35, y: 20, z: 1}
+    m_Scale: {x: 26, y: 15, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
