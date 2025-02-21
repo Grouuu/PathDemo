@@ -5033,7 +5033,7 @@ MonoBehaviour:
   _target: {fileID: 403915401}
   _totalParticles: 1000
   _scaleRelatedToScene: 1.5
-  _isDebug: 1
+  _isDebug: 0
 --- !u!114 &22888075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10570,7 +10570,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.11614455, g: 0.1926286, b: 0.2830189, a: 0}
+  m_BackGroundColor: {r: 0.0065414775, g: 0.025698632, b: 0.1981132, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -20687,7 +20687,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1731752404
 Transform:
   m_ObjectHideFlags: 0
