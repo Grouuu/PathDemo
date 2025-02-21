@@ -7,6 +7,8 @@ public class PlayerBody : MonoBehaviour
 	public Vector3 forward => transform.right;
 	public Vector3 up => transform.forward;
 
+	[SerializeField] private Animator _animator;
+
 	private Rigidbody _rigidBody;
 
 	public void Rotate (Quaternion rotation)
