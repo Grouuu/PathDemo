@@ -1,6 +1,3 @@
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 
 /*
@@ -50,9 +47,9 @@ public class ObstacleBody : MonoBehaviour
 
 	private void OnDrawGizmosSelected ()
 	{
-		Handles.color = Color.red;
-		Handles.DrawWireDisc(transform.position, Vector3.forward, Radius);
-		Handles.DrawWireDisc(transform.position, Vector3.forward, RadiusGravity);
+		UnityEditor.Handles.color = Color.red;
+		UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, Radius);
+		UnityEditor.Handles.DrawWireDisc(transform.position, Vector3.forward, RadiusGravity);
 	}
 
 #endif

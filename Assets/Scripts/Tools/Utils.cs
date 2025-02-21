@@ -40,11 +40,6 @@ public static class Utils
 		);
 	}
 
-	public static void PauseEditor ()
-	{
-		UnityEditor.EditorApplication.isPaused = true;
-	}
-
 	public static Vector2 GetSceneSize ()
 	{
 		float height = Camera.main.orthographicSize * 2;
@@ -66,5 +61,14 @@ public static class Utils
 	{
 		return (value != 0) && ((value & (value - 1)) == 0);
 	}
+
+#if UNITY_EDITOR
+
+	public static void PauseEditor ()
+	{
+		UnityEditor.EditorApplication.isPaused = true;
+	}
+
+#endif
 
 }
