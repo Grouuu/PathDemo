@@ -5,6 +5,8 @@ Shader "Custom/Dust"
         // input data
         _WorldVelocity("WorldVelocity", Vector) = (0, 0, 0, 0)
         _Color("_Color", Color) = (0, 0, 0, 1)
+        _NoiseSize("_NoiseSize", float) = 0.2
+        _VerticalScale("_VerticalScale", float) = 1
     }
 
     SubShader
@@ -38,6 +40,8 @@ Shader "Custom/Dust"
 
             float4 _WorldVelocity;
             float4 _Color;
+            float _NoiseSize;
+            float _VerticalScale;
 
             Interpolators vert (MeshData v)
             {
@@ -63,7 +67,9 @@ Shader "Custom/Dust"
 
                 float2 noisePosition = i.world;
                 // size of clouds
-                noisePosition *= 0.2;
+                noisePosition *= _NoiseSize;
+                // scale of clouds
+                noisePosition.y *= _VerticalScale;
                 // clouds movement
                 noisePosition.x -= _Time * _WorldVelocity.x;
                 noisePosition.y -= _Time * _WorldVelocity.y;

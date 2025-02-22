@@ -85,8 +85,10 @@ Material:
     - _LightingEnabled: 1
     - _Metallic: 0
     - _Mode: 3
+    - _NoiseSize: 0.05
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _Scale: 0.1
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
     - _SoftParticlesFarFadeDistance: 1
@@ -94,13 +96,14 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _VerticalScale: 2
     - _ZWrite: 0
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0.2264151, g: 0.14845142, b: 0.14845142, a: 1}
+    - _Color: {r: 0.3584906, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Position: {r: 0, g: 0, b: 0, a: 0}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
-    - _WorldVelocity: {r: -10, g: 0, b: 0, a: 0}
+    - _WorldVelocity: {r: 5, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
