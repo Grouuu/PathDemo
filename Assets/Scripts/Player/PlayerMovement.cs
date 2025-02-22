@@ -34,7 +34,6 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private float _rotatePower = 100f;
 	[SerializeField] [Range (0, 1)] private float _velocitySnapPower = 0.5f;
 	[SerializeField] private Vector3 _velocity = Vector3.zero;
-	[SerializeField] private bool _isSnapVelocity = true;
 	[SerializeField] private bool _isDebug = false;
 
 	private Vector3 _velocityDirection => _velocity == Vector3.zero ? _playerBody.forward : _velocity.normalized;
@@ -71,7 +70,6 @@ public class PlayerMovement : MonoBehaviour
 		ApplyGravityForce(deltaTime);
 		ClampVelocity();
 		ApplyTranslation(deltaTime);
-		ApplyVelocitySnap();
 
 		OnUpdatePlayerPosition?.Invoke(_playerBody.position);
 		OnUpdatePlayerVelocity?.Invoke(_velocity);
@@ -111,17 +109,6 @@ public class PlayerMovement : MonoBehaviour
 	{
 		Vector3 translation = _velocity * deltaTime;
 		_playerBody.Translate(translation);
-	}
-
-	private void ApplyVelocitySnap ()
-	{
-		if (_isSnapVelocity && _velocity != Vector3.zero && _rotateForce == 0 && _thrustForce == 0)
-		{
-			// face the velocity
-			float deltaAngle = Vector3.SignedAngle(_playerBody.forward, _velocityDirection, _playerBody.up);
-			Quaternion rotationVelocity = Quaternion.AngleAxis(deltaAngle * _velocitySnapPower, _playerBody.up);
-			_playerBody.Rotate(rotationVelocity);
-		}
 	}
 
 	private void UpdatePath ()
