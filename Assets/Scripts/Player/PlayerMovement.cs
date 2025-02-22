@@ -32,7 +32,6 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private float _speedMax = 10f;
 	[SerializeField] private float _thrustPower = 5f;
 	[SerializeField] private float _rotatePower = 100f;
-	[SerializeField] [Range (0, 1)] private float _velocitySnapPower = 0.5f;
 	[SerializeField] private Vector3 _velocity = Vector3.zero;
 	[SerializeField] private bool _isDebug = false;
 

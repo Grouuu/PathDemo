@@ -14,6 +14,8 @@ using UnityEngine;
 [RequireComponent(typeof(RandomSampler))]
 public class RandomGrid : MonoBehaviour
 {
+	public RandomSampler sampler { get; private set; }
+
 	[SerializeField] private int _cellSizeInUnit = 1;				// unit size for each cell (one obstacle by cell max)
 	[SerializeField] private float _startMinDistance = 3;			// min distance between obstacles at start
 	[SerializeField] private float _spawnReservedDistance = 15;		// more than max neighbors radius gravity to have a spawn safe from gravity
@@ -24,7 +26,6 @@ public class RandomGrid : MonoBehaviour
 	private int _minShiftBeforeUpdate => Mathf.CeilToInt(_minDistance * 2 / _cellSizeInUnit);
 
 	private Dictionary<string, RandomGridPoint> _points = new Dictionary<string, RandomGridPoint>();
-	private RandomSampler _sampler;
 	private Vector2 _gridSizeInUnit;
 	private Vector2Int _gridSizeInCell;
 	private Vector2 _targetPosition;
@@ -87,7 +88,7 @@ public class RandomGrid : MonoBehaviour
 
 	private void Awake ()
 	{
-		_sampler = GetComponent<RandomSampler>();
+		sampler = GetComponent<RandomSampler>();
 	}
 
 	private void Start ()
@@ -155,7 +156,7 @@ public class RandomGrid : MonoBehaviour
 				Vector2 randomDeltaPosition = randomDirection * UnityEngine.Random.Range(spawnCentre.reservedDistance, spawnCentre.reservedDistance + _minDistance);
 
 				Vector2 candidatePosition = spawnCentre.position + randomDeltaPosition;
-				float candidateFactor = _sampler.GetFactorAt(candidatePosition);
+				float candidateFactor = sampler.GetFactorAt(candidatePosition);
 
 				if (candidateFactor == -1)
 				{
@@ -167,7 +168,7 @@ public class RandomGrid : MonoBehaviour
 
 				if (IsInNewBounds(candidatePosition, oldBounds, _bounds) && IsValidPoint(candidatePosition, reservedDistance))
 				{
-					ObstacleData candidateData = _sampler.GetDataAt(candidatePosition);
+					ObstacleData candidateData = sampler.GetDataAt(candidatePosition);
 					RandomGridPoint point = AddPoint(candidateData, candidatePosition, reservedDistance, candidateFactor);
 					newPoints.Add(point);
 					spawnPoints.Add(point);

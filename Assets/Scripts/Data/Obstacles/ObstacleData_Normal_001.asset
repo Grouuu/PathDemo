@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e0c72ebb25248044cb13ff57d89332f1, type: 3}
-  m_Name: ObstacleData_Easy_01
+  m_Name: ObstacleData_Normal_001
   m_EditorClassIdentifier: 
-  id: 2
+  id: 3
   pool:
-    id: obstacle_Easy_01
-    prefab: {fileID: 2730072025428956595, guid: 14f679d1c2774d34a9656b95222deb33, type: 3}
+    id: obstacle_Medium_01
+    prefab: {fileID: 2730072025428956595, guid: 66beb40dd97cb134daa8c3510255c3aa, type: 3}
     poolSize: 1
   radius: 0.5
   radiusGravity: 10

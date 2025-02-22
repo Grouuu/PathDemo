@@ -50,6 +50,11 @@ public class ObstacleController : MonoBehaviour
 		}
 	}
 
+	public void SetDifficulty (float difficulty)
+	{
+		_grid.sampler.SetDifficulty(difficulty);
+	}
+
 	public bool IsCrashPosition(Vector3 position)
 	{
 		if (_ignoreCollision)

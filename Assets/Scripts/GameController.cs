@@ -4,28 +4,39 @@ using UnityEngine.SceneManagement;
 /*
  * Dependencies:
  * . PlayerMovement
- * . ObstacleController
  * . FirewallBody
+ * . ObstacleController
+ * . DifficultyController
  */
 public class GameController : MonoBehaviour
 {
 	[SerializeField] private PlayerMovement _playerController;
 	[SerializeField] private ObstacleController _obstacleController;
+	[SerializeField] private DifficultyController _difficultyController;
+
+	private void Start ()
+	{
+		DifficultyUpdated();
+	}
 
 	private void OnEnable ()
 	{
-		PlayerMovement.OnUpdatePlayerPosition += CheckPlayerCrash;
+		PlayerMovement.OnUpdatePlayerPosition += OnUpdatePlayerPosition;
 		FirewallBody.OnFirewallCrash += CrashOnFirewall;
 	}
 
 	private void OnDisable ()
 	{
-		PlayerMovement.OnUpdatePlayerPosition -= CheckPlayerCrash;
+		PlayerMovement.OnUpdatePlayerPosition -= OnUpdatePlayerPosition;
 		FirewallBody.OnFirewallCrash -= CrashOnFirewall;
 	}
 
-	private void CheckPlayerCrash (Vector3 position)
+	private void OnUpdatePlayerPosition (Vector3 position)
 	{
+		_difficultyController.UpdateDifficulty(position);
+
+		DifficultyUpdated();
+
 		if (_obstacleController.IsCrashPosition(position))
 		{
 			IsCrashed();
@@ -42,6 +53,11 @@ public class GameController : MonoBehaviour
 		_playerController.SetIsCrashed(true);
 
 		ReloadStage();
+	}
+
+	private void DifficultyUpdated ()
+	{
+		_obstacleController.SetDifficulty(_difficultyController.GetDifficulty());
 	}
 
 	private void ReloadStage ()
