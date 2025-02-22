@@ -96,7 +96,7 @@ public class PathController : MonoBehaviour
 
 		Gradient gradient = _lineRenderer.colorGradient;
 		GradientAlphaKey[] alphaKeys = gradient.alphaKeys;
-		alphaKeys[1].alpha = 1 - currentProgress;
+		alphaKeys[^1].alpha = 1 - currentProgress;
 		gradient.alphaKeys = alphaKeys;
 
 		_lineRenderer.startWidth = _width;
