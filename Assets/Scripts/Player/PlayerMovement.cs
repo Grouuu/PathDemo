@@ -44,7 +44,6 @@ public class PlayerMovement : MonoBehaviour
 
 	public void SetIsCrashed (bool isCrashed)
 	{
-		// TODO implement the caller
 		_isCrashed = isCrashed;
 	}
 
@@ -58,8 +57,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private void FixedUpdate ()
 	{
-		if (_isCrashed)
-		{
+		if (_isCrashed) {
 			return;
 		}
 
@@ -75,8 +73,7 @@ public class PlayerMovement : MonoBehaviour
 		OnUpdatePlayerVelocity?.Invoke(_velocity);
 		OnUpdatePlayerThrust?.Invoke(thrustForce);
 
-		if (_isDebug)
-		{
+		if (_isDebug) {
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _playerBody.forward * 10, Color.blue); // forward
 			Debug.DrawLine(_playerBody.position, _playerBody.position + _velocityDirection * _velocity.magnitude * 20, Color.green); // velocity
 		}
@@ -87,8 +84,7 @@ public class PlayerMovement : MonoBehaviour
 		Quaternion rotation = Quaternion.AngleAxis(_rotateForce * deltaTime, _playerBody.up);
 		_playerBody.Rotate(rotation);
 
-		if (_velocity != Vector3.zero)
-		{
+		if (_velocity != Vector3.zero) {
 			_velocity = rotation * _velocity;
 		}
 	}

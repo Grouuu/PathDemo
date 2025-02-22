@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
  * Dependencies:
  * . PlayerMovement
  * . ObstacleController
+ * . FirewallBody
  */
 public class GameController : MonoBehaviour
 {
@@ -39,6 +40,12 @@ public class GameController : MonoBehaviour
 	private void IsCrashed ()
 	{
 		_playerController.SetIsCrashed(true);
+
+		ReloadStage();
+	}
+
+	private void ReloadStage ()
+	{
 		string currentSceneName = SceneManager.GetActiveScene().name;
 		SceneManager.LoadScene(currentSceneName);
 	}
