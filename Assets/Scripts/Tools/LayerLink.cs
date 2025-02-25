@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class LayerLink : MonoBehaviour
 {
-	public string name;
+	[SerializeField] private string _name;
 	public Transform target;
 
 	public void Ping ()
