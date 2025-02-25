@@ -15861,7 +15861,7 @@ GameObject:
   - component: {fileID: 1201485827}
   - component: {fileID: 1201485825}
   m_Layer: 0
-  m_Name: Firewall Light
+  m_Name: Firewall Volumetric Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
