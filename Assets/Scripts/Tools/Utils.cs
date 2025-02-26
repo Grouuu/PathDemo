@@ -62,6 +62,32 @@ public static class Utils
 		return (value != 0) && ((value & (value - 1)) == 0);
 	}
 
+	// https://x.com/FreyaHolmer/status/1184524972464787467
+	public static float Remap (
+		float checkMin,
+		float checkMax,
+		float resultMin,
+		float resultMax,
+		float checkValue,
+		bool isInverseCheck = false,
+		bool isInverseResult = false
+	)
+	{
+		float check = Mathf.InverseLerp(checkMin, checkMax, checkValue);
+
+		if (isInverseCheck)	{
+			check = 1 - check;
+		}
+
+		float result = Mathf.Lerp(resultMin, resultMax, check);
+
+		if (isInverseResult) {
+			result = 1 - result;
+		}
+
+		return result;
+	}
+
 #if UNITY_EDITOR
 
 	public static void PauseEditor ()

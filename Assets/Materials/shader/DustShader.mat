@@ -82,8 +82,12 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _Intensity: 1
     - _LightingEnabled: 1
+    - _MaxAlpha: 0.85
     - _Metallic: 0
+    - _Min: 1
+    - _MinAlpha: 0
     - _Mode: 3
     - _NoiseSize: 0.05
     - _OcclusionStrength: 1

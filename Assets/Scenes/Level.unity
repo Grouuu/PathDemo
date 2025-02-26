@@ -10227,7 +10227,6 @@ GameObject:
   - component: {fileID: 403915405}
   - component: {fileID: 403915402}
   - component: {fileID: 403915406}
-  - component: {fileID: 403915407}
   m_Layer: 0
   m_Name: PlayerBody
   m_TagString: Untagged
@@ -10315,23 +10314,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 933752676}
---- !u!114 &403915407
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 403915400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 742958153dca0d7408aa11896a2cf869, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _light: {fileID: 1690983908}
-  _minRange: 500
-  _maxRange: 750
-  _minIntensity: 0.5
-  _maxIntensity: 1
 --- !u!4 &500138756 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5593195909017195357, guid: 4be7a99d429a19840a38df28f88a8680, type: 3}
@@ -10395,6 +10377,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 648780814}
+  - component: {fileID: 648780816}
+  - component: {fileID: 648780815}
   m_Layer: 0
   m_Name: FIREWALL
   m_TagString: Untagged
@@ -10411,7 +10395,7 @@ Transform:
   m_GameObject: {fileID: 648780813}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -510, y: 0, z: 0}
+  m_LocalPosition: {x: -520, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10421,6 +10405,42 @@ Transform:
   - {fileID: 1394971079}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &648780815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648780813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf21c4a09c62b1b4bb9de0fcf19eb4ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 403915401}
+  _fogMesh: {fileID: 1731752405}
+  _minRange: 550
+  _maxRange: 600
+  _minIntensity: 0
+  _maxIntensity: 1
+--- !u!114 &648780816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648780813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 742958153dca0d7408aa11896a2cf869, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 403915401}
+  _light: {fileID: 1690983908}
+  _minRange: 500
+  _maxRange: 750
+  _minIntensity: 0.5
+  _maxIntensity: 1
 --- !u!1 &669216163
 GameObject:
   m_ObjectHideFlags: 0
@@ -20863,7 +20883,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gravityPower: 1
-  _ignoreGravity: 0
+  _ignoreGravity: 1
 --- !u!1 &1282357447
 GameObject:
   m_ObjectHideFlags: 0
@@ -21116,7 +21136,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 0.9960785, g: 0.9960785, b: 0.17254902, a: 1}
+  m_Color: {r: 0.9960785, g: 0.85882354, b: 0.11372549, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
